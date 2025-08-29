@@ -1,17 +1,15 @@
 {
-  "functions": {
-    "backend/api.py": {
-      "runtime": "python3.12"
-    }
-  },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/api.py"
+      "dest": "backend/api.py"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/webapp/dist/$1"
+      "dest": "/index.html"
     }
   ]
 }
