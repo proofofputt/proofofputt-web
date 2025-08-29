@@ -9,11 +9,15 @@
       "dest": "/app/assets/$1"
     },
     {
-      "src": "/app/(.*)",
+      "src": "/POP\\.Proof_Of_Putt\\.Log\\.576\\.png",
+      "dest": "/app/POP.Proof_Of_Putt.Log.576.png"
+    },
+    {
+      "src": "/app$",
       "dest": "/app/index.html"
     },
     {
-      "src": "/app",
+      "src": "/app/.*",
       "dest": "/app/index.html"
     },
     {
