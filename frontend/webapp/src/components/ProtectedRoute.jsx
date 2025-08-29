@@ -1,30 +1,22 @@
-import React, { useContext } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-// import { AuthContext } from '../context/AuthContext'; // Assuming an AuthContext exists
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext.jsx';
 
-const ProtectedRoute = () => {
-  // const { isAuthenticated, loading } = useContext(AuthContext);
+const ProtectedRoute = ({ children }) => {
+  const { playerData, isLoading } = useAuth();
 
-  // --- Placeholder Logic --- 
-  // In a real app, the AuthContext would determine if the user is authenticated.
-  // For now, we'll simulate the user being authenticated to allow development of protected pages.
-  // Replace this with the context-based logic once AuthContext is implemented.
-  const isAuthenticated = true; // Placeholder
-  const loading = false; // Placeholder
-  // --- End Placeholder Logic ---
-
-  if (loading) {
+  if (isLoading) {
     // Optional: Show a loading spinner while checking auth status
     return <div>Loading...</div>;
   }
 
-  if (!isAuthenticated) {
+  if (!playerData) {
     // If not authenticated, redirect to the login page
     return <Navigate to="/login" replace />;
   }
 
-  // If authenticated, render the child routes
-  return <Outlet />;
+  // If authenticated, render the child component that was passed in
+  return children;
 };
 
 export default ProtectedRoute;
