@@ -1,21 +1,43 @@
 {
+  "version": 2,
+  "name": "proofofputt",
   "builds": [
     {
-      "src": "frontend/webapp/package.json",
+      "src": "apps/web/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "npm run build"
       }
     },
     {
-      "src": "backend/api.py",
-      "use": "@vercel/python"
+      "src": "apps/api/api.py",
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.12"
+      }
     }
   ],
   "routes": [
     {
+      "src": "/api/health",
+      "dest": "apps/api/api.py"
+    },
+    {
+      "src": "/api/test", 
+      "dest": "apps/api/api.py"
+    },
+    {
+      "src": "/api/login",
+      "dest": "apps/api/api.py"
+    },
+    {
+      "src": "/api/register", 
+      "dest": "apps/api/api.py"
+    },
+    {
       "src": "/api/(.*)",
-      "dest": "backend/api.py"
+      "dest": "apps/api/api.py"
     },
     {
       "handle": "filesystem"
@@ -24,5 +46,13 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "apps/api/api.py": {
+      "maxDuration": 30
+    }
+  }
 }

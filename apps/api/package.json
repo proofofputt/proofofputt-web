@@ -1,0 +1,19 @@
+{
+  "name": "@proofofputt/api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Proof of Putt Backend API",
+  "main": "api.py",
+  "scripts": {
+    "dev": "python3 api.py",
+    "build": "echo 'Python build complete'",
+    "test": "python3 -m pytest tests/",
+    "clean": "find . -name '__pycache__' -type d -exec rm -rf {} + || true"
+  },
+  "keywords": ["golf", "training", "api", "flask"],
+  "author": "Proof of Putt",
+  "license": "MIT",
+  "engines": {
+    "python": ">=3.12"
+  }
+}

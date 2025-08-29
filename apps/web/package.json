@@ -1,0 +1,28 @@
+{
+  "name": "@proofofputt/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --port ${PORT:-5173}",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist node_modules/.vite"
+  },
+  "keywords": ["golf", "training", "react"],
+  "author": "Proof of Putt",
+  "license": "MIT",
+  "description": "Proof of Putt Web Application",
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "date-fns": "^3.6.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.8.1",
+    "recharts": "^2.12.7"
+  },
+  "devDependencies": {
+    "vite": "^7.1.2"
+  }
+}

@@ -38,44 +38,43 @@ Desktop App (Tauri + React)  ←→  Backend API (Flask + PostgreSQL)  ←→  W
 
 ### Prerequisites
 
-- Node.js 18+
-- Python 3.9+
+- Node.js 18+ (with npm workspaces support)
+- Python 3.12+
 - Rust (for desktop app)
 - PostgreSQL (local) or NeonDB (cloud)
 
-### Installation
+### Monorepo Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/[username]/proof-of-putt.git
-   cd proof-of-putt
+   git clone https://github.com/proofofputt/proofofputt.git
+   cd proofofputt
    ```
 
-2. **Backend Setup**
+2. **Install all dependencies**
    ```bash
-   cd backend
-   pip install -r requirements.txt
-   
+   npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
    # Set environment variables
    export DATABASE_URL="your_postgresql_connection_string"
    export ALLOWED_ORIGINS="http://localhost:5173,https://your-domain.com"
+   export VITE_API_BASE_URL="http://localhost:5001"
+   ```
+
+4. **Development**
+   ```bash
+   # Run all services
+   npm run dev                 # Web app only
+   npm run build              # Build all apps
+   npm run build:web          # Build web app
+   npm run build:api          # Build API
    
-   # Run the API
-   python api.py
-   ```
-
-3. **Frontend Setup**
-   ```bash
-   cd frontend/webapp
-   npm install
-   npm run dev
-   ```
-
-4. **Desktop App Setup**
-   ```bash
-   cd desktop
-   npm install
-   npm run tauri dev
+   # Individual app development
+   cd apps/web && npm run dev    # Web frontend
+   cd apps/api && python3 api.py # Backend API
    ```
 
 ### Environment Variables
@@ -95,19 +94,29 @@ VITE_API_BASE_URL=http://localhost:5001
 VITE_APP_NAME=Proof of Putt
 ```
 
-## 📁 Project Structure
+## 📁 Monorepo Structure
 
 ```
-proof-of-putt/
-├── backend/                 # Flask API server
-│   ├── api.py              # Main API endpoints
-│   ├── data_manager.py     # Database operations
-│   ├── notification_service.py
-│   ├── utils.py
-│   ├── requirements.txt
-│   └── vercel.json         # Vercel deployment config
-├── frontend/webapp/        # React web application
-│   ├── src/
+proofofputt/
+├── package.json            # Root workspace configuration
+├── vercel.json            # Unified deployment config
+├── apps/
+│   ├── web/               # React web application
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── pages/
+│   │   │   ├── context/
+│   │   │   └── api.js
+│   │   ├── package.json
+│   │   └── vite.config.js
+│   └── api/               # Flask API server  
+│       ├── api.py         # Main API endpoints
+│       ├── data_manager.py # Database operations
+│       ├── notification_service.py
+│       ├── requirements.txt
+│       └── package.json
+├── packages/              # Shared code (future)
+└── tools/                 # Build tools (future)
 │   │   ├── components/     # React components
 │   │   ├── context/       # React context providers
 │   │   ├── pages/         # Page components

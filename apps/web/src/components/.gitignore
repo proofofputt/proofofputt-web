@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+*.egg
+dist/
+build/
+*.sqlite3
+*.db
+
+# Logs and Reports
+*.log
+logs/
+Session.Reports/
+
+# Node / Vite
+webapp/node_modules/
+webapp/dist/
+webapp/.pnp
+webapp/.pnp.js
+webapp/coverage/
+
+# IDEs and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Secrets
+.env
+*.env
+calibration_output_*.json

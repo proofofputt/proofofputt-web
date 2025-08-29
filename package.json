@@ -1,0 +1,34 @@
+{
+  "name": "proofofputt-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Proof of Putt - Golf Training Platform Monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web && npm run build --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:desktop": "npm run build --workspace=apps/desktop",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "clean": "npm run clean --workspaces",
+    "deploy": "vercel --prod"
+  },
+  "devDependencies": {
+    "npm": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "author": "Proof of Putt",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proofofputt/proofofputt.git"
+  }
+}
