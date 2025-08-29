@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // import { AuthContext } from '../context/AuthContext'; // Assuming an AuthContext exists
+import { apiLogin } from '../api';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -24,19 +25,7 @@ const LoginPage = () => {
     }
 
     try {
-      const response = await fetch('/api/login', { // Using relative path for proxy
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to log in. Please check your credentials.');
-      }
+      const data = await apiLogin(email, password);
 
       // Assuming the login function in AuthContext handles storing user data and token
       // login(data);

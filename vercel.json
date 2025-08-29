@@ -1,4 +1,6 @@
 {
+  "buildCommand": "cd frontend/webapp && npm run build",
+  "outputDirectory": "frontend/webapp/dist",
   "routes": [
     {
       "src": "/api/(.*)",
