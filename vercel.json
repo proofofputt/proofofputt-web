@@ -9,6 +9,18 @@
     {
       "src": "/api/(.*)",
       "dest": "apps/api/api.py"
+    },
+    {
+      "src": "/app/(.*)",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/app",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
