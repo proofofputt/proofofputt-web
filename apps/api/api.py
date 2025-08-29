@@ -23,6 +23,7 @@ load_dotenv()
 import data_manager
 import notification_service # Import the new notification service
 from utils import get_camera_index_from_config
+import sqlalchemy
 
 # Configure the Gemini API client
 try:
@@ -54,7 +55,7 @@ def test_user():
         pool = data_manager.get_db_connection()
         with pool.connect() as conn:
             result = conn.execute(
-                data_manager.sqlalchemy.text("SELECT player_id, email, name FROM players WHERE email = :email"),
+                sqlalchemy.text("SELECT player_id, email, name FROM players WHERE email = :email"),
                 {"email": "pop@proofofputt.com"}
             ).mappings().first()
             if result:
