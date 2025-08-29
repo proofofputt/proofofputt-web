@@ -5,6 +5,10 @@
       "dest": "apps/api/api.py"
     },
     {
+      "src": "/assets/(.*)",
+      "dest": "/app/assets/$1"
+    },
+    {
       "src": "/app/(.*)",
       "dest": "/app/index.html"
     },
