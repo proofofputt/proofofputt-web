@@ -13,14 +13,5 @@
       "src": "/(.*)",
       "dest": "/frontend/webapp/dist/$1"
     }
-  ],
-  "builds": [
-    {
-      "src": "frontend/webapp/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
   ]
 }
