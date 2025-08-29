@@ -1,0 +1,26 @@
+{
+  "functions": {
+    "backend/api.py": {
+      "runtime": "python3.12"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/api.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/webapp/dist/$1"
+    }
+  ],
+  "builds": [
+    {
+      "src": "frontend/webapp/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ]
+}

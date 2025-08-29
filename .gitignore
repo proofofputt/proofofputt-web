@@ -1,0 +1,112 @@
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+.pytest_cache/
+venv-py311/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+proofofputt_data.db
+proofofputt_data.backup.db
+
+# Logs and Session Reports
+logs/
+*.log
+Session.Reports/
+debug_log_*.txt
+putt_classification_log_*.csv
+session_report_*.csv
+session_report_*.json
+tracker_debug.log
+sample_frame_with_rois_*.jpg
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+.pnpm-debug.log*
+
+# Frontend build artifacts
+/frontend/webapp/dist/
+
+# Desktop app build artifacts
+/desktop/src-tauri/target/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+calibration_output*.json
+*.zip
+
+# Prototype and legacy files
+/proofofputt.prototype.early/
+
+# Documentation and reports
+/Claude.Takeover.Reports/
+/Gemini\ Chat\ History/
+/Handover\ Reports/
+
+# Test data (large files)
+/TestData/*.mp4
+/TestData/*.avi
+/TestData/*.mov
+
+# Machine learning models (may be large)
+models/best.pt
+
+# Development and testing files
+calibration_from_frame.py
+quick_test.sh
+run_video_test.py
+video_testing_framework.py
+VIDEO_TESTING_README.md
+check_import.py
+check_stats.py
+backfill_stats.py
+login_gui.py
+email_utility.py
+scheduler.py
+pyproject.toml
+requirements.in
+
+# Vercel
+.vercel
+
+# Data directory
+data/
