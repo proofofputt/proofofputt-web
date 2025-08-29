@@ -23,10 +23,12 @@
     {
       "src": "/api/(.*)",
       "dest": "apps/api/api.py"
-    },
+    }
+  ],
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/apps/web/dist/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "env": {
