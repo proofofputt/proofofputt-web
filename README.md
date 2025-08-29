@@ -1,6 +1,6 @@
 # 🏌️ Proof of Putt
 
-**AI-powered golf putting training and competition platform with blockchain-enabled wagering**
+**AI-powered golf putting training and competition platform 
 
 [![Vercel Deployment](https://vercel.com/button)](https://vercel.com/new/clone)
 
@@ -14,7 +14,6 @@ Proof of Putt transforms putting practice into verifiable, competitive experienc
 - **📊 Performance Analytics** - Detailed putting statistics and improvement tracking  
 - **⚔️ Competitive Gaming** - Duels, leagues, and tournament systems
 - **💰 Subscription Model** - Freemium SaaS with premium analytics
-- **🔗 Blockchain Ready** - Architecture prepared for Bitcoin wagering integration
 
 ## 🏗️ Technical Architecture
 
