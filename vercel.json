@@ -14,11 +14,8 @@
       "dest": "backend/api.py"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "frontend/webapp/dist/index.html"
     }
   ]
 }
