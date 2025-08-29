@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "cd apps/web && rm -rf node_modules package-lock.json && npm install && npm run build && cp -r dist/* ../.. && cp dist/index.html ../../index.html",
+    "build": "cd apps/web && rm -rf node_modules package-lock.json && npm install && npm run build && mkdir -p ../../public/app && cp -r dist/* ../../public/app/ && cp ../../index.html ../../public/",
     "dev": "cd apps/web && npm run dev"
   },
   "dependencies": {},
