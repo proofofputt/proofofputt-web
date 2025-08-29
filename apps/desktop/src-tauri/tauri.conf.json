@@ -1,0 +1,60 @@
+{
+  "build": {
+    "beforeDevCommand": "VITE_API_BASE_URL=http://127.0.0.1:5001 npm run dev",
+    "beforeBuildCommand": "VITE_API_BASE_URL=https://proofofputt-git-main-nicholas-kirwans-projects.vercel.app npm run build",
+    "devPath": "http://localhost:5173",
+    "distDir": "../../proofofputt/apps/web/dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "Proof of Putt",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true,
+        "scope": [
+          {
+            "name": "run-python",
+            "cmd": "python3",
+            "args": true
+          }
+        ]
+      },
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": [
+          "http://127.0.0.1:5001/*",
+          "https://proofofputt-git-main-nicholas-kirwans-projects.vercel.app/api/*"
+        ]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.proofofputt.desktop",
+      "icon": [
+        "icons/icon.png"
+      ],
+      "resources": [
+        "../../proofofputt/apps/api"
+      ]
+    },
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self'; connect-src 'self' http://127.0.0.1:5001 https://proofofputt-git-main-nicholas-kirwans-projects.vercel.app;"
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "Proof of Putt",
+        "width": 1200,
+        "height": 800
+      }
+    ]
+  }
+}
