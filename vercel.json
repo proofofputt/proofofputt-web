@@ -1,6 +1,13 @@
 {
-  "buildCommand": "cd frontend/webapp && npm run build",
-  "outputDirectory": "frontend/webapp/dist",
+  "builds": [
+    {
+      "src": "frontend/webapp/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
