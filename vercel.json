@@ -25,11 +25,8 @@
       "dest": "apps/api/api.py"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/apps/web/dist/index.html"
     }
   ],
   "env": {
