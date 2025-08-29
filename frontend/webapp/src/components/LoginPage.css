@@ -1,6 +1,0 @@
-.login-page-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 88px); /* Adjust 88px for header height if needed */
-}
