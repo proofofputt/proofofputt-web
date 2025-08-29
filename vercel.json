@@ -1,18 +1,7 @@
 {
-  "builds": [
-    {
-      "src": "apps/api/api.py",
-      "use": "@vercel/python"
+  "functions": {
+    "apps/api/api.py": {
+      "runtime": "@vercel/python"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/apps/api/api.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ]
+  }
 }
