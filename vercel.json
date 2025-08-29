@@ -6,9 +6,22 @@
       "config": {
         "distDir": "dist"
       }
+    },
+    {
+      "src": "backend/api.py",
+      "use": "@vercel/python",
+      "config": { "runtime": "python3.12" }
     }
   ],
   "routes": [
+    {
+      "src": "/api/login",
+      "dest": "backend/api.py"
+    },
+    {
+      "src": "/api/register",
+      "dest": "backend/api.py"
+    },
     {
       "src": "/api/(.*)",
       "dest": "backend/api.py"
