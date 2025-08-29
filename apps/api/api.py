@@ -47,6 +47,23 @@ def home():
 def test_route():
     return "Test route is working!"
 
+@app.route('/test-user')
+def test_user():
+    """Test endpoint to check if default user exists"""
+    try:
+        pool = data_manager.get_db_connection()
+        with pool.connect() as conn:
+            result = conn.execute(
+                data_manager.sqlalchemy.text("SELECT player_id, email, name FROM players WHERE email = :email"),
+                {"email": "pop@proofofputt.com"}
+            ).mappings().first()
+            if result:
+                return f"Default user found: ID={result['player_id']}, Email={result['email']}, Name={result['name']}"
+            else:
+                return "Default user not found"
+    except Exception as e:
+        return f"Error checking user: {e}"
+
 @app.route('/health')
 def health_check():
     return jsonify({"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()})
@@ -291,10 +308,12 @@ def login():
     data = request.get_json()
     email = data.get('email', '').strip()
     password = data['password']
+    app.logger.info(f"Login attempt for email: {email}")
     if not email or not password:
         return jsonify({"error": "Invalid credentials"}), 401
     try:
         player_id, player_name, player_email, stats, sessions, timezone, subscription_status = data_manager.login_with_email_password(email, password)
+        app.logger.info(f"Login result for {email}: player_id={player_id}")
         if player_id is not None:
             # Asynchronously trigger the daily AI chat creation check
             thread = threading.Thread(target=_create_daily_ai_chat_if_needed, args=(player_id,))
