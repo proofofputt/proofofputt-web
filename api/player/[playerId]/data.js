@@ -13,7 +13,7 @@ export default function handler(req, res) {
       name: 'Pop',
       email: 'pop@proofofputt.com',
       membership_tier: 'premium',
-      early_access_code: 'EARLY2024',
+      early_access_code: 'early',
       stats: {
         total_makes: 0,
         total_misses: 0,
