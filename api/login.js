@@ -16,7 +16,7 @@ export default function handler(req, res) {
       return res.status(200).json({
         success: true,
         player_id: 1,
-        name: 'Test Player',
+        name: 'Pop',
         email: email,
         token: 'mock-jwt-token'
       });
