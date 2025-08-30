@@ -2,13 +2,10 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext.jsx';
 import { useNotification } from '@/context/NotificationContext.jsx';
 import { apiStartSession, apiStartCalibration } from '@/api.js';
-import DesktopConnectionStatus from './DesktopConnectionStatus.jsx';
-import './ConnectionStatus.css';
 
-const SessionControls = () => {
+const SessionControls = ({ isDesktopConnected }) => {
   const { playerData } = useAuth();
   const { showTemporaryNotification: showNotification } = useNotification();
-  const [isDesktopConnected, setIsDesktopConnected] = useState(false);
   const [actionError, setActionError] = useState('');
 
   const handleStartSessionClick = async () => {
@@ -24,7 +21,6 @@ const SessionControls = () => {
         await invoke('start_session', { playerId: playerData.player_id });
         showNotification('Session started! Check the desktop application.');
       } else {
-        // This shouldn't happen if isDesktopConnected is false, but fallback
         await apiStartSession(playerData.player_id);
         showNotification('Session request sent to desktop application.');
       }
@@ -59,42 +55,24 @@ const SessionControls = () => {
   const hasCalibration = playerData?.calibration_data;
 
   return (
-    <div className="session-controls">
-      <DesktopConnectionStatus onConnectionChange={setIsDesktopConnected} />
-      
-      <div className="desktop-actions">
-        <h3>Session Controls</h3>
-        {isDesktopConnected ? (
-          <div className="action-buttons">
-            <button 
-              onClick={handleStartSessionClick} 
-              className={`btn ${hasCalibration ? 'btn-orange' : ''}`}
-            >
-              Start New Session
-            </button>
-            <button 
-              onClick={handleCalibrateClick} 
-              className={`btn ${!hasCalibration ? 'btn-orange' : 'btn-secondary'}`}
-            >
-              Calibrate Camera
-            </button>
-          </div>
-        ) : (
-          <div className="disabled-actions">
-            <button className="btn btn-disabled" disabled title="Requires desktop app">
-              Start New Session
-            </button>
-            <button className="btn btn-disabled" disabled title="Requires desktop app">
-              Calibrate Camera
-            </button>
-            <p className="help-text">
-              💡 <strong>Tip:</strong> Session tracking happens through the desktop application. 
-              This web interface displays your results and statistics.
-            </p>
-          </div>
-        )}
-        {actionError && <p className="error-message">{actionError}</p>}
-      </div>
+    <div className="session-controls-buttons">
+      <button 
+        onClick={handleStartSessionClick} 
+        className={`btn ${hasCalibration ? 'btn-orange' : ''}`}
+        disabled={!isDesktopConnected}
+        title={!isDesktopConnected ? "Requires desktop app" : ""}
+      >
+        Start New Session
+      </button>
+      <button 
+        onClick={handleCalibrateClick} 
+        className={`btn ${!hasCalibration ? 'btn-orange' : 'btn-secondary'}`}
+        disabled={!isDesktopConnected}
+        title={!isDesktopConnected ? "Requires desktop app" : ""}
+      >
+        Calibrate Camera
+      </button>
+      {actionError && <p className="error-message">{actionError}</p>}
     </div>
   );
 };

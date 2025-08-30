@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext.jsx';
 import SessionRow from '@/components/SessionRow.jsx';
 import { useNotification } from '@/context/NotificationContext.jsx';
 import { apiGetLeaderboards } from '@/api.js';
+import DesktopConnectionStatus from '@/components/DesktopConnectionStatus.jsx';
 import SessionControls from '@/components/SessionControls.jsx';
 import LeaderboardCard from '@/components/LeaderboardCard.jsx';
 
@@ -20,6 +21,11 @@ function Dashboard() {
   const isSubscribed = playerData?.subscription_status === 'active';
   const [expandedSessionId, setExpandedSessionId] = useState(null);
   const [leaderboardData, setLeaderboardData] = useState(null);
+  const [isDesktopConnected, setIsDesktopConnected] = useState(false);
+
+  const handleConnectionChange = (connected) => {
+    setIsDesktopConnected(connected);
+  };
   const tableWrapperRef = useRef(null);
 
   // This effect manages the height of the session table container
@@ -84,7 +90,8 @@ function Dashboard() {
 
   return (
     <>
-      <SessionControls />
+      <DesktopConnectionStatus onConnectionChange={handleConnectionChange} />
+      <SessionControls isDesktopConnected={isDesktopConnected} />
       
       <div className="dashboard-actions">
         <button onClick={handleRefreshClick} className="btn btn-tertiary">Refresh Data</button>
