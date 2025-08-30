@@ -11,51 +11,29 @@ export default function handler(req, res) {
 
   if (req.method === 'GET') {
     return res.status(200).json({
-      leaderboard: [
-        { 
-          player_id: 1, 
-          name: "Pop", 
-          make_percentage: 74.4, 
-          total_putts: 1240,
-          total_makes: 923,
-          sessions: 12,
-          rank: 1,
-          points: 2850,
-          streak: 8
-        },
-        { 
-          player_id: 2, 
-          name: "Tiger", 
-          make_percentage: 71.2, 
-          total_putts: 980,
-          total_makes: 698,
-          sessions: 10,
-          rank: 2,
-          points: 2650,
-          streak: 5
-        },
-        { 
-          player_id: 3, 
-          name: "Jordan", 
-          make_percentage: 68.9, 
-          total_putts: 1510,
-          total_makes: 1040,
-          sessions: 15,
-          rank: 3,
-          points: 2580,
-          streak: 12
-        },
-        { 
-          player_id: 4, 
-          name: "Rory", 
-          make_percentage: 66.1, 
-          total_putts: 890,
-          total_makes: 588,
-          sessions: 8,
-          rank: 4,
-          points: 2240,
-          streak: 3
-        }
+      top_makes: [
+        { name: "Jordan", value: 1040, rank: 1 },
+        { name: "Pop", value: 923, rank: 2 },
+        { name: "Tiger", value: 698, rank: 3 },
+        { name: "Rory", value: 588, rank: 4 }
+      ],
+      top_streaks: [
+        { name: "Jordan", value: 12, rank: 1 },
+        { name: "Pop", value: 8, rank: 2 },
+        { name: "Tiger", value: 5, rank: 3 },
+        { name: "Rory", value: 3, rank: 4 }
+      ],
+      top_makes_per_minute: [
+        { name: "Pop", value: 2.8, rank: 1 },
+        { name: "Tiger", value: 2.4, rank: 2 },
+        { name: "Jordan", value: 2.1, rank: 3 },
+        { name: "Rory", value: 1.9, rank: 4 }
+      ],
+      fastest_21: [
+        { name: "Pop", value: "7:32", rank: 1 },
+        { name: "Tiger", value: "8:45", rank: 2 },
+        { name: "Jordan", value: "9:21", rank: 3 },
+        { name: "Rory", value: "10:15", rank: 4 }
       ],
       type,
       timeframe,
