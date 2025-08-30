@@ -65,10 +65,10 @@ const SessionControls = ({ isDesktopConnected }) => {
   const hasCalibration = playerData?.calibration_data;
 
   return (
-    <div className="session-controls-buttons">
+    <div className="session-controls-buttons" style={{ display: 'flex', gap: '1rem' }}>
       <button 
         onClick={handleStartSessionClick} 
-        className={`btn ${hasCalibration ? 'btn-orange' : ''}`}
+        className={`btn btn-tertiary ${hasCalibration ? 'btn-orange' : ''}`}
         disabled={!isDesktopConnected}
         title={!isDesktopConnected ? "Requires desktop app" : ""}
       >
@@ -76,7 +76,7 @@ const SessionControls = ({ isDesktopConnected }) => {
       </button>
       <button 
         onClick={handleCalibrateClick} 
-        className={`btn ${!hasCalibration ? 'btn-orange' : 'btn-secondary'}`}
+        className={`btn btn-tertiary ${!hasCalibration ? 'btn-orange' : 'btn-secondary'}`}
         disabled={!isDesktopConnected}
         title={!isDesktopConnected ? "Requires desktop app" : ""}
       >
