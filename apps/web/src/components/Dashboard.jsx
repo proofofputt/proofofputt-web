@@ -91,9 +91,9 @@ function Dashboard() {
   return (
     <>
       <DesktopConnectionStatus onConnectionChange={handleConnectionChange} />
-      <SessionControls isDesktopConnected={isDesktopConnected} />
       
       <div className="dashboard-actions">
+        <SessionControls isDesktopConnected={isDesktopConnected} />
         <button onClick={handleRefreshClick} className="btn btn-tertiary">Refresh Data</button>
       </div>
 
