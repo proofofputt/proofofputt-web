@@ -203,7 +203,7 @@ def handle_value_error(e):
 @app.errorhandler(Exception)
 def handle_generic_exception(e):
     app.logger.error(f"An unexpected server error occurred: {e}", exc_info=True)
-    return jsonify({"error": "An unexpected server error occurred."}), 500
+    return jsonify({"error": f"An unexpected server error occurred: {str(e)}"}), 500
 
 @app.route('/favicon.ico')
 def favicon():
@@ -314,7 +314,7 @@ def login():
             return jsonify({"error": "Invalid credentials"}), 401
     except Exception as e:
         app.logger.error(f"Login failed: {e}", exc_info=True)
-        return jsonify({"error": "An internal error occurred during login."}), 500
+        return jsonify({"error": f"An internal error occurred during login: {str(e)}"}), 500
 
 @app.route('/register', methods=['POST', 'OPTIONS'])
 def register():
