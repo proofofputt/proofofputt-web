@@ -291,3 +291,12 @@ export const apiCancelSubscription = (playerId) => {
     headers: { 'Content-Type': 'application/json' },
   }).then(handleResponse);
 };
+
+// --- Desktop Integration ---
+export const apiCheckDesktopStatus = () => {
+  return fetch(`${API_BASE_URL}/desktop/status`).then(handleResponse);
+};
+
+export const apiGetCalibrationStatus = (playerId) => {
+  return fetch(`${API_BASE_URL}/player/${playerId}/calibration`).then(handleResponse);
+};

@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import './ConnectionStatus.css';
+import { apiCheckDesktopStatus } from '@/api.js';
 
 const DesktopConnectionStatus = ({ onConnectionChange }) => {
   const [isConnected, setIsConnected] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [lastCheck, setLastCheck] = useState(null);
+
+  const checkConnection = async () => {
+    setIsChecking(true);
+    try {
+      const status = await apiCheckDesktopStatus();
+      setIsConnected(status.connected);
+      onConnectionChange?.(status.connected);
+      setLastCheck(new Date());
+    } catch (error) {
+      console.log('Desktop app not connected:', error.message);
+      setIsConnected(false);
+      onConnectionChange?.(false);
+    } finally {
+      setIsChecking(false);
+    }
+  };
 
   useEffect(() => {
-    const checkConnection = () => {
-      const connected = !!window.__TAURI__;
-      setIsConnected(connected);
-      onConnectionChange?.(connected);
-    };
-
     checkConnection();
     // Check periodically in case desktop app is launched
     const interval = setInterval(checkConnection, 5000);
@@ -26,20 +39,14 @@ const DesktopConnectionStatus = ({ onConnectionChange }) => {
     window.open('https://github.com/proofofputt/app/releases', '_blank');
   };
 
-  const handleCheckConnection = () => {
-    // Force re-check connection status
-    const checkConnection = () => {
-      const connected = !!window.__TAURI__;
-      setIsConnected(connected);
-      onConnectionChange?.(connected);
-      
-      if (connected) {
-        alert('Desktop app detected! Session controls are now available.');
-      } else {
-        alert('Desktop app not detected. Please ensure the desktop application is running and try again.');
-      }
-    };
-    checkConnection();
+  const handleCheckConnection = async () => {
+    await checkConnection();
+    
+    if (isConnected) {
+      alert('Desktop app connected! Session controls are now available.');
+    } else {
+      alert('Desktop app not detected. Please ensure the desktop application is running and try again.');
+    }
   };
 
   return (
@@ -54,8 +61,12 @@ const DesktopConnectionStatus = ({ onConnectionChange }) => {
         <button onClick={handleDownload} className="btn btn-primary">
           Download Desktop App
         </button>
-        <button onClick={handleCheckConnection} className="btn btn-secondary">
-          Check Connection
+        <button 
+          onClick={handleCheckConnection} 
+          className="btn btn-secondary"
+          disabled={isChecking}
+        >
+          {isChecking ? 'Checking...' : 'Check Connection'}
         </button>
       </div>
       
