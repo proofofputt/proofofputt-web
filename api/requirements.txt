@@ -5,3 +5,6 @@ python-dotenv
 google-generativeai
 google-api-core
 tenacity
+sqlalchemy
+bcrypt
+werkzeug
