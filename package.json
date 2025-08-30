@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "type": "module",
   "scripts": {
     "build": "cd apps/web && rm -rf node_modules package-lock.json && npm install && npm run build && mkdir -p ../../public/app && cp -r dist/* ../../public/app/ && cp ../../index.html ../../public/",
     "dev": "cd apps/web && npm run dev"
