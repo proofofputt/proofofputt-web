@@ -4,12 +4,33 @@
   ],
   "functions": {
     "api/index.py": {
-      "runtime": "@vercel/python@3.9"
+      "runtime": "python3.8"
+    },
+    "api/leaderboards.js": {
+      "runtime": "node16"
+    },
+    "api/login.js": {
+      "runtime": "node16"
+    },
+    "api/register.js": {
+      "runtime": "node16"
+    },
+    "api/sessions.js": {
+      "runtime": "node16"
+    },
+    "api/start-calibration.js": {
+      "runtime": "node16"
+    },
+    "api/start-session.js": {
+      "runtime": "node16"
+    },
+    "api/player/**/*.js": {
+      "runtime": "node16"
     }
   },
   "build": {
     "env": {
-      "PYTHON_VERSION": "3.9.12"
+      "PYTHON_VERSION": "3.8.10"
     }
   }
 }
