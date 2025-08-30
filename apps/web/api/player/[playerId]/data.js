@@ -11,8 +11,18 @@ export default function handler(req, res) {
   const { playerId } = req.query;
 
   if (req.method === 'GET') {
+    // Add validation for playerId
+    if (!playerId) {
+      return res.status(400).json({ error: 'Player ID is required' });
+    }
+
+    const playerIdNum = parseInt(playerId);
+    if (isNaN(playerIdNum)) {
+      return res.status(400).json({ error: 'Invalid Player ID' });
+    }
+
     return res.status(200).json({
-      player_id: parseInt(playerId),
+      player_id: playerIdNum,
       name: 'Pop',
       email: 'pop@proofofputt.com',
       membership_tier: 'premium',
