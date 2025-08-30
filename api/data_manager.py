@@ -615,6 +615,7 @@ def get_player_stats(player_id):
             career_stats["avg_ppm"] = (total_putts / total_duration_minutes) if total_duration_minutes > 0 else 0
             career_stats["avg_mpm"] = (base_stats.get('total_makes', 0) / total_duration_minutes) if total_duration_minutes > 0 else 0
         if total_putts > 0:
+            if total_putts > 0:
             career_stats["avg_accuracy"] = (base_stats.get('total_makes', 0) / total_putts) * 100
 
         # Final cleanup for JSON compatibility
