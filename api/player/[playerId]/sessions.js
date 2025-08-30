@@ -8,46 +8,40 @@ export default function handler(req, res) {
   }
 
   const { playerId } = req.query;
+  const { page = 1, limit = 25 } = req.query;
 
   if (req.method === 'GET') {
     return res.status(200).json({
       sessions: [
         {
-          id: 1,
-          date: "2025-08-30T09:00:00Z",
-          duration: 1800, // 30 minutes in seconds
+          session_id: 1,
+          start_time: '2025-08-30T14:00:00Z',
+          end_time: '2025-08-30T14:15:00Z',
           total_putts: 45,
-          makes: 33,
-          make_percentage: 73.3,
+          total_makes: 32,
+          total_misses: 13,
+          make_percentage: 71.1,
           best_streak: 8,
-          avg_distance: 6.2,
-          session_type: "practice"
+          session_duration: 900,
+          status: 'completed'
         },
         {
-          id: 2,
-          date: "2025-08-29T14:30:00Z", 
-          duration: 2400, // 40 minutes
-          total_putts: 62,
-          makes: 44,
-          make_percentage: 71.0,
-          best_streak: 12,
-          avg_distance: 5.8,
-          session_type: "league"
-        },
-        {
-          id: 3,
-          date: "2025-08-28T11:15:00Z",
-          duration: 1200, // 20 minutes
-          total_putts: 28,
-          makes: 21,
-          make_percentage: 75.0,
-          best_streak: 6,
-          avg_distance: 4.9,
-          session_type: "duel"
+          session_id: 2,
+          start_time: '2025-08-29T16:30:00Z',
+          end_time: '2025-08-29T16:45:00Z',
+          total_putts: 38,
+          total_makes: 25,
+          total_misses: 13,
+          make_percentage: 65.8,
+          best_streak: 5,
+          session_duration: 750,
+          status: 'completed'
         }
       ],
-      player_id: parseInt(playerId),
-      total_sessions: 3
+      current_page: parseInt(page),
+      total_pages: 1,
+      total_sessions: 2,
+      limit: parseInt(limit)
     });
   }
 

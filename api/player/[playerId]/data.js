@@ -27,19 +27,48 @@ export default function handler(req, res) {
       email: 'pop@proofofputt.com',
       membership_tier: 'premium',
       early_access_code: 'early',
+      subscription_status: 'active',
+      timezone: 'America/New_York',
       stats: {
-        total_makes: 0,
-        total_misses: 0,
-        best_streak: 0,
-        make_percentage: 0,
-        total_putts: 0,
-        avg_distance: 0,
-        sessions_played: 0
+        total_makes: 57,
+        total_misses: 26,
+        best_streak: 8,
+        make_percentage: 68.7,
+        total_putts: 83,
+        avg_distance: 6.2,
+        sessions_played: 2
       },
-      sessions: [],
+      sessions: [
+        {
+          session_id: 1,
+          start_time: '2025-08-30T14:00:00Z',
+          end_time: '2025-08-30T14:15:00Z',
+          total_putts: 45,
+          total_makes: 32,
+          total_misses: 13,
+          make_percentage: 71.1,
+          best_streak: 8,
+          session_duration: 900,
+          status: 'completed'
+        },
+        {
+          session_id: 2,
+          start_time: '2025-08-29T16:30:00Z',
+          end_time: '2025-08-29T16:45:00Z',
+          total_putts: 38,
+          total_makes: 25,
+          total_misses: 13,
+          make_percentage: 65.8,
+          best_streak: 5,
+          session_duration: 750,
+          status: 'completed'
+        }
+      ],
       calibration_data: {
-        is_calibrated: false,
-        last_calibration: null
+        is_calibrated: true,
+        last_calibration: '2025-08-30T12:00:00Z',
+        camera_index: 0,
+        roi_coordinates: { x: 100, y: 100, width: 300, height: 200 }
       }
     });
   }

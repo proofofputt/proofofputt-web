@@ -7,47 +7,37 @@ export default function handler(req, res) {
     return res.status(200).end();
   }
 
-  if (req.method === 'POST') {
-    const { player_id, session_type, putts_data } = req.body;
-    
-    return res.status(200).json({
-      success: true,
-      session: {
-        id: Date.now(),
-        player_id,
-        session_type: session_type || "practice",
-        created_at: new Date().toISOString(),
-        status: "active"
+  const { player_id } = req.query;
+
+  if (req.method === 'GET') {
+    return res.status(200).json([
+      {
+        session_id: 1,
+        player_id: parseInt(player_id) || 1,
+        start_time: '2025-08-30T14:00:00Z',
+        end_time: '2025-08-30T14:15:00Z',
+        total_putts: 45,
+        total_makes: 32,
+        total_misses: 13,
+        make_percentage: 71.1,
+        best_streak: 8,
+        session_duration: 900,
+        status: 'completed'
       },
-      message: "Session started successfully"
-    });
-  }
-
-  if (req.method === 'PUT') {
-    const { session_id, putts_data, end_session } = req.body;
-    
-    if (end_session) {
-      return res.status(200).json({
-        success: true,
-        session: {
-          id: session_id,
-          status: "completed",
-          ended_at: new Date().toISOString(),
-          final_stats: {
-            total_putts: 45,
-            makes: 33,
-            make_percentage: 73.3,
-            best_streak: 8
-          }
-        },
-        message: "Session completed successfully"
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Session updated successfully"
-    });
+      {
+        session_id: 2,
+        player_id: parseInt(player_id) || 1,
+        start_time: '2025-08-29T16:30:00Z',
+        end_time: '2025-08-29T16:45:00Z',
+        total_putts: 38,
+        total_makes: 25,
+        total_misses: 13,
+        make_percentage: 65.8,
+        best_streak: 5,
+        session_duration: 750,
+        status: 'completed'
+      }
+    ]);
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
