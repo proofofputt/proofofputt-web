@@ -3,10 +3,5 @@
   "outputDirectory": "apps/web/dist",
   "rewrites": [
     { "source": "/((?!api).*)", "destination": "/index.html" }
-  ],
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  ]
 }
