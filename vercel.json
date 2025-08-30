@@ -2,9 +2,12 @@
   "version": 2,
   "builds": [
     {
-      "src": "apps/web/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "buildCommand": "npm run build --workspace=@proofofputt/web",
+        "distDir": "apps/web/dist"
+      }
     },
     {
       "src": "api/api.py",
