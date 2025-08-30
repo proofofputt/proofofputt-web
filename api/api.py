@@ -290,7 +290,7 @@ def login():
 
     data = request.get_json()
     email = data.get('email', '').strip()
-    password = data['password']
+    password = data.get('password')
     if not email or not password:
         return jsonify({"error": "Invalid credentials"}), 401
     try:
@@ -323,7 +323,7 @@ def register():
 
     data = request.get_json()
     email = data.get('email', '').strip()
-    password = data['password']
+    password = data.get('password')
     name = data['name'].strip()
     if not email or not password or not name:
         return jsonify({"error": "Email, password, and name cannot be empty"}), 400
