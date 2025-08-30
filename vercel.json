@@ -17,12 +17,8 @@
       "dest": "apps/api/api.py"
     },
     {
-      "src": "/app/(.*)",
-      "dest": "/app/$1"
-    },
-    {
       "src": "/app",
-      "dest": "/app/index.html"
+      "dest": "/app.html"
     }
   ]
 }
