@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext.jsx';
 import SessionRow from '@/components/SessionRow.jsx';
 import { useNotification } from '@/context/NotificationContext.jsx';
-import { apiGetLeaderboards, apiStartSession, apiStartCalibration } from '@/api.js';
-import ChangePassword from '@/components/ChangePassword.jsx';
+import { apiGetLeaderboards } from '@/api.js';
+import SessionControls from '@/components/SessionControls.jsx';
 import LeaderboardCard from '@/components/LeaderboardCard.jsx';
 
 const StatCard = ({ title, value }) => (
@@ -15,10 +15,9 @@ const StatCard = ({ title, value }) => (
 );
 
 function Dashboard() {
-  const { playerData, refreshData } = useAuth(); // Remove startCalibration
+  const { playerData, refreshData } = useAuth();
   const { showTemporaryNotification: showNotification } = useNotification();
   const isSubscribed = playerData?.subscription_status === 'active';
-  const [actionError, setActionError] = useState('');
   const [expandedSessionId, setExpandedSessionId] = useState(null);
   const [leaderboardData, setLeaderboardData] = useState(null);
   const tableWrapperRef = useRef(null);
@@ -65,40 +64,7 @@ function Dashboard() {
     fetchLeaderboards();
   }, []); // Empty dependency array means this runs once on mount
 
-  const handleStartSessionClick = async () => {
-    setActionError('');
-    try {
-      if (window.__TAURI__) {
-        const { invoke } = await import('@tauri-apps/api/tauri');
-        await invoke('start_session', { playerId: playerData.player_id });
-      } else {
-        await apiStartSession(playerData.player_id);
-      }
-      showNotification('Session started! Check for the new tracking window.');
-    } catch (err) {
-      setActionError(err.message);
-      showNotification(err.message, true);
-    }
-  };
-
-  const handleCalibrateClick = async () => {
-    setActionError('');
-    try {
-      if (window.__TAURI__) {
-        const { invoke } = await import('@tauri-apps/api/tauri');
-        await invoke('start_calibration', { playerId: playerData.player_id });
-      } else {
-        await apiStartCalibration(playerData.player_id);
-      }
-      showNotification('Calibration started! Check for the new camera window.');
-    } catch (err) {
-      setActionError(err.message);
-      showNotification(err.message, true);
-    }
-  };
-
   const handleRefreshClick = () => {
-    setActionError('');
     refreshData(playerData.player_id);
     showNotification('Data refreshed!');
   };
@@ -111,19 +77,17 @@ function Dashboard() {
     return <p>Loading player data...</p>;
   }
 
-  const { stats, sessions, calibration_data } = playerData;
-  const hasCalibration = !!calibration_data;
+  const { stats, sessions } = playerData;
 
   const totalPutts = (stats.total_makes || 0) + (stats.total_misses || 0);
   const makePercentage = totalPutts > 0 ? ((stats.total_makes / totalPutts) * 100).toFixed(1) + '%' : 'N/A';
 
   return (
     <>
+      <SessionControls />
+      
       <div className="dashboard-actions">
-        <button onClick={handleStartSessionClick} className={`btn ${hasCalibration ? 'btn-orange' : ''}`}>Start New Session</button>
-        <button onClick={handleCalibrateClick} className={`btn ${!hasCalibration ? 'btn-orange' : 'btn-secondary'}`}>Calibrate Camera</button>
         <button onClick={handleRefreshClick} className="btn btn-tertiary">Refresh Data</button>
-        {actionError && <p className="error-message">{actionError}</p>}
       </div>
 
       <div className="stats-summary-bar">
