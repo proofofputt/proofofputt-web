@@ -88,34 +88,6 @@ def initialize_database():
                     )
             '''))
 
-            if db_type == "sqlite":
-                columns_to_add = {
-                    "x_url": "TEXT",
-                    "tiktok_url": "TEXT",
-                    "website_url": "TEXT",
-                    "notification_preferences": "TEXT",
-                    "calibration_data": "TEXT"
-                }
-                for column, col_type in columns_to_add.items():
-                    try:
-                        conn.execute(sqlalchemy.text(f"ALTER TABLE players ADD COLUMN {column} {col_type}"))
-                        logger.info(f"Added column '{column}' to 'players' table.")
-                    except OperationalError as e:
-                        if "duplicate column name" in str(e).lower():
-                            logger.info(f"Column '{column}' already exists in 'players' table. Skipping.")
-                        else:
-                            logger.error(f"Error adding column '{column}' to 'players' table: {e}")
-
-            elif db_type == "postgresql":
-                # Check if the column exists first to avoid a failing statement within the transaction
-                inspector = sqlalchemy.inspect(conn)
-                columns = [c['name'] for c in inspector.get_columns('players')]
-                if 'calibration_data' not in columns:
-                    conn.execute(sqlalchemy.text("ALTER TABLE players ADD COLUMN calibration_data TEXT"))
-                    logger.info("Migration: Added column 'calibration_data' to 'players' table.")
-                else:
-                    logger.info("Migration: Column 'calibration_data' already exists in 'players' table. Skipping.")
-
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS sessions (
                         session_id {session_id_type},
@@ -204,26 +176,6 @@ def initialize_database():
                     )
             '''))
 
-            if db_type == "sqlite":
-                league_columns_to_add = {
-                    "name": "TEXT",
-                    "description": "TEXT",
-                    "privacy_type": "TEXT",
-                    "status": "TEXT",
-                    "settings": "TEXT",
-                    "start_time": "DATETIME",
-                    "final_notifications_sent": "BOOLEAN"
-                }
-                for column, col_type in league_columns_to_add.items():
-                    try:
-                        conn.execute(sqlalchemy.text(f"ALTER TABLE leagues ADD COLUMN {column} {col_type} DEFAULT ''"))
-                        logger.info(f"Added column '{column}' to 'leagues' table.")
-                    except OperationalError as e:
-                        if "duplicate column name" in str(e).lower():
-                            logger.info(f"Column '{column}' already exists in 'leagues' table. Skipping.")
-                        else:
-                            logger.error(f"Error adding column '{column}' to 'leagues' table: {e}")
-
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS league_members (
                         member_id INTEGER,
@@ -249,21 +201,6 @@ def initialize_database():
                     )
             '''))
 
-            if db_type == "sqlite":
-                round_columns_to_add = {
-                    "round_number": "INTEGER",
-                    "status": "TEXT"
-                }
-                for column, col_type in round_columns_to_add.items():
-                    try:
-                        conn.execute(sqlalchemy.text(f"ALTER TABLE league_rounds ADD COLUMN {column} {col_type}"))
-                        logger.info(f"Added column '{column}' to 'league_rounds' table.")
-                    except OperationalError as e:
-                        if "duplicate column name" in str(e).lower():
-                            logger.info(f"Column '{column}' already exists in 'league_rounds' table. Skipping.")
-                        else:
-                            logger.error(f"Error adding column '{column}' to 'league_rounds' table: {e}")
-
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS league_round_submissions (
                         submission_id {session_id_type},
@@ -278,24 +215,6 @@ def initialize_database():
                         FOREIGN KEY (round_id) REFERENCES league_rounds (round_id) ON DELETE CASCADE
                     )
             '''))
-
-            if db_type == "sqlite":
-                submission_columns_to_add = {
-                    "player_id": "INTEGER",
-                    "session_id": "INTEGER",
-                    "score": "INTEGER",
-                    "points_awarded": "INTEGER",
-                    "submitted_at": "DATETIME"
-                }
-                for column, col_type in submission_columns_to_add.items():
-                    try:
-                        conn.execute(sqlalchemy.text(f"ALTER TABLE league_round_submissions ADD COLUMN {column} {col_type}"))
-                        logger.info(f"Added column '{column}' to 'league_round_submissions' table.")
-                    except OperationalError as e:
-                        if "duplicate column name" in str(e).lower():
-                            logger.info(f"Column '{column}' already exists in 'league_round_submissions' table. Skipping.")
-                        else:
-                            logger.error(f"Error adding column '{column}' to 'league_round_submissions' table: {e}")
 
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS player_stats (
@@ -339,26 +258,6 @@ def initialize_database():
                     )
             '''))
 
-            if db_type == "sqlite":
-                try:
-                    duel_table_info = conn.execute(sqlalchemy.text("PRAGMA table_info(duels)")).mappings().fetchall()
-                    duel_column_names = [col['name'] for col in duel_table_info]
-                    duel_columns_to_add = {
-                        "invitation_expiry_minutes": "INTEGER",
-                        "session_duration_limit_minutes": "INTEGER",
-                        "invitation_expires_at": "DATETIME"
-                    }
-                    for column, col_type in duel_columns_to_add.items():
-                        if column not in duel_column_names:
-                            conn.execute(sqlalchemy.text(f"ALTER TABLE duels ADD COLUMN {column} {col_type}"))
-                            logger.info(f"Migration: Added column '{column}' to 'duels' table.")
-                    if 'time_limit_minutes' in duel_column_names:
-                        logger.info("Migration: Found obsolete 'time_limit_minutes' column in 'duels' table. Dropping it.")
-                        conn.execute(sqlalchemy.text("ALTER TABLE duels DROP COLUMN time_limit_minutes"))
-                        logger.info("Migration: Successfully dropped 'time_limit_minutes' column.")
-                except Exception as e:
-                    logger.warning(f"A non-critical error occurred during 'duels' table migration. This is often safe to ignore. Error: {e}")
-
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS notifications (
                         id {session_id_type},
@@ -373,35 +272,6 @@ def initialize_database():
                         FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
                     )
             '''))
-
-            if db_type == "sqlite":
-                notification_columns_to_add = {
-                    "email_sent": "BOOLEAN"
-                }
-                for column, col_type in notification_columns_to_add.items():
-                    try:
-                        conn.execute(sqlalchemy.text(f"ALTER TABLE notifications ADD COLUMN {column} {col_type}"))
-                        logger.info(f"Added column '{column}' to 'notifications' table.")
-                    except OperationalError as e:
-                        if "duplicate column name" in str(e).lower():
-                            logger.info(f"Column '{column}' already exists in 'notifications' table. Skipping.")
-                        else:
-                            logger.error(f"Error adding column '{column}' to 'notifications' table: {e}")
-
-            if db_type == "sqlite":
-                fundraiser_columns_to_add = {
-                    "last_notified_milestone": "INTEGER",
-                    "conclusion_notification_sent": "BOOLEAN"
-                }
-                for column, col_type in fundraiser_columns_to_add.items():
-                    try:
-                        conn.execute(sqlalchemy.text(f"ALTER TABLE fundraisers ADD COLUMN {column} {col_type} DEFAULT 0"))
-                        logger.info(f"Added column '{column}' to 'fundraisers' table.")
-                    except OperationalError as e:
-                        if "duplicate column name" in str(e).lower():
-                            logger.info(f"Column '{column}' already exists in 'fundraisers' table. Skipping.")
-                        else:
-                            logger.error(f"Error adding column '{column}' to 'fundraisers' table: {e}")
 
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS player_relationships (
@@ -473,17 +343,8 @@ def register_player(email, password, name):
                 player_id = result.scalar() if db_type == "postgresql" else result.lastrowid
 
                 # Initialize player_stats with default zero values for proper career stats display
-                conn.execute(sqlalchemy.text("""
-                    INSERT INTO player_stats (
-                        player_id, total_makes, total_misses, total_putts, best_streak, 
-                        fastest_21_makes, total_duration, last_updated
-                    ) VALUES (
-                        :player_id, 0, 0, 0, 0, 0, 0.0, :current_time
-                    )
-                """), {
-                    "player_id": player_id, 
-                    "current_time": datetime.utcnow()
-                })
+                # This now matches the simple, correct insertion used for the default user.
+                conn.execute(sqlalchemy.text("INSERT INTO player_stats (player_id) VALUES (:player_id)"), {"player_id": player_id})
 
                 # Send welcome email
                 subject = "Welcome to Proof of Putt!"
