@@ -19,10 +19,23 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    // This effect now simply manages loading state.
-    // The initial state is already set from localStorage.
-    setIsLoading(false);
-  }, []);
+    const loadAndRefreshData = async () => {
+      if (playerData && playerData.player_id) {
+        try {
+          const freshData = await apiGetPlayerData(playerData.player_id);
+          localStorage.setItem('playerData', JSON.stringify(freshData));
+          setPlayerData(freshData);
+        } catch (error) {
+          console.error('Failed to refresh player data on mount:', error);
+          // Optionally, log out if refresh fails, but for now, just log the error
+          // logout(); 
+        }
+      }
+      setIsLoading(false); // Set loading to false after attempt to load/refresh
+    };
+
+    loadAndRefreshData();
+  }, []); // Run once on mount
 
   const login = async (email, password) => {
     try {

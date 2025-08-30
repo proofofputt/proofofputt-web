@@ -10,6 +10,10 @@ export default function handler(req, res) {
   }
 
   if (req.method === 'GET') {
+    // Log the request for debugging
+    console.log('Player data request:', req.url, req.method);
+    
+    // For development - accept all requests without auth
     return res.status(200).json({
       player_id: 1,
       name: 'Pop',
