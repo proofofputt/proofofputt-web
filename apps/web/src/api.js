@@ -121,15 +121,7 @@ export const apiStartCalibration = (playerId) => {
 };
 
 // --- Duels ---
-export const apiListDuels = (playerId) => {
-  // DISABLED: Return mock data to avoid 500 errors
-  console.log("Duels list API disabled - returning mock duels");
-  return Promise.resolve({ 
-    duels: [],
-    total: 0,
-    player_id: playerId 
-  });
-};
+export const apiListDuels = (playerId) => fetch(`${API_BASE_URL}/duels/list/${playerId}`).then(handleResponse);
 export const apiGetPlayerVsPlayerDuels = (player1Id, player2Id) => fetch(`${API_BASE_URL}/players/${player1Id}/vs/${player2Id}/duels`).then(handleResponse);
 export const apiGetPlayerVsPlayerLeaderboard = (player1Id, player2Id) => fetch(`${API_BASE_URL}/players/${player1Id}/vs/${player2Id}/leaderboard`).then(handleResponse);
 
