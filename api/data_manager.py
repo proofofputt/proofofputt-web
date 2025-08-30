@@ -47,6 +47,23 @@ def initialize_database():
     db_type = pool.dialect.name
 
     with pool.connect() as conn:
+        logger.info("Dropping all existing tables to ensure a clean schema...")
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS pledges CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS fundraisers CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS league_round_submissions CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS league_rounds CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS league_members CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS leagues CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS duels CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS sessions CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS notifications CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS password_reset_tokens CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS player_relationships CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS coach_conversations CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS player_stats CASCADE;"))
+        conn.execute(sqlalchemy.text("DROP TABLE IF EXISTS players CASCADE;"))
+        logger.info("All tables dropped successfully.")
+
         player_id_type = "SERIAL PRIMARY KEY" if db_type == "postgresql" else "INTEGER PRIMARY KEY"
         session_id_type = "SERIAL PRIMARY KEY" if db_type == "postgresql" else "INTEGER PRIMARY KEY"
         timestamp_type = "TIMESTAMP WITH TIME ZONE" if db_type == "postgresql" else "DATETIME"
