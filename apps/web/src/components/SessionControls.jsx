@@ -17,9 +17,14 @@ const SessionControls = ({ isDesktopConnected }) => {
     setActionError('');
     try {
       if (window.__TAURI__) {
-        const { invoke } = await import('@tauri-apps/api/tauri');
-        await invoke('start_session', { playerId: playerData.player_id });
-        showNotification('Session started! Check the desktop application.');
+        try {
+          const { invoke } = await import('@tauri-apps/api/tauri');
+          await invoke('start_session', { playerId: playerData.player_id });
+          showNotification('Session started! Check the desktop application.');
+        } catch (importErr) {
+          console.error('Failed to import Tauri API:', importErr);
+          showNotification('Desktop app integration not available', true);
+        }
       } else {
         await apiStartSession(playerData.player_id);
         showNotification('Session request sent to desktop application.');
@@ -39,9 +44,14 @@ const SessionControls = ({ isDesktopConnected }) => {
     setActionError('');
     try {
       if (window.__TAURI__) {
-        const { invoke } = await import('@tauri-apps/api/tauri');
-        await invoke('start_calibration', { playerId: playerData.player_id });
-        showNotification('Calibration started! Check the desktop application.');
+        try {
+          const { invoke } = await import('@tauri-apps/api/tauri');
+          await invoke('start_calibration', { playerId: playerData.player_id });
+          showNotification('Calibration started! Check the desktop application.');
+        } catch (importErr) {
+          console.error('Failed to import Tauri API:', importErr);
+          showNotification('Desktop app integration not available', true);
+        }
       } else {
         await apiStartCalibration(playerData.player_id);
         showNotification('Calibration request sent to desktop application.');

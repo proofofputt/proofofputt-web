@@ -5,6 +5,14 @@ import { fileURLToPath, URL } from 'node:url'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    exclude: [
+      '@tauri-apps/api/tauri',
+      '@tauri-apps/api/window',
+      '@tauri-apps/api/path',
+      '@tauri-apps/api/fs'
+    ]
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
