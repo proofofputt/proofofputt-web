@@ -1,10 +1,12 @@
 {
+  "buildCommand": "cd apps/web && npm run build",
+  "outputDirectory": "apps/web/dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.py" }
+    { "source": "/((?!api).*)", "destination": "/index.html" }
   ],
-  "build": {
-    "env": {
-      "PYTHON_VERSION": "3.8.10"
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
     }
   }
 }
