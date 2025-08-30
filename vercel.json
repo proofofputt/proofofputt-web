@@ -1,22 +1,15 @@
 {
-  "builds": [
-    {
-      "src": "apps/api/api.py",
-      "use": "@vercel/python"
+  "buildCommand": "cd apps/web && npm install && npm run build",
+  "outputDirectory": "apps/web/dist",
+  "functions": {
+    "apps/api/api.py": {
+      "runtime": "python3.9"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "apps/api/api.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/public/index.html"
+      "dest": "/api/apps/api/api.py"
     }
   ]
 }
