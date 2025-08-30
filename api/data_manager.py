@@ -300,7 +300,10 @@ def initialize_database():
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS player_stats (
                         player_id INTEGER PRIMARY KEY,
+                        total_makes INTEGER DEFAULT 0,
+                        total_misses INTEGER DEFAULT 0,
                         total_putts INTEGER DEFAULT 0,
+                        best_streak INTEGER DEFAULT 0,
                         fastest_21_makes REAL,
                         FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
                     )
@@ -360,6 +363,12 @@ def initialize_database():
                     CREATE TABLE IF NOT EXISTS notifications (
                         id {session_id_type},
                         player_id INTEGER NOT NULL,
+                        type TEXT NOT NULL,
+                        message TEXT NOT NULL,
+                        details TEXT,
+                        link_path TEXT,
+                        read_status BOOLEAN DEFAULT FALSE,
+                        created_at {timestamp_type} DEFAULT {default_timestamp},
                         email_sent BOOLEAN DEFAULT FALSE,
                         FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
                     )
@@ -378,24 +387,6 @@ def initialize_database():
                             logger.info(f"Column '{column}' already exists in 'notifications' table. Skipping.")
                         else:
                             logger.error(f"Error adding column '{column}' to 'notifications' table: {e}")
-
-            conn.execute(sqlalchemy.text(f'''
-                    CREATE TABLE IF NOT EXISTS fundraisers (
-                        fundraiser_id {session_id_type},
-                        player_id INTEGER NOT NULL,
-                        FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
-                    )
-
-            '''))
-
-            conn.execute(sqlalchemy.text(f'''
-                    CREATE TABLE IF NOT EXISTS pledges (
-                        pledge_id {session_id_type},
-                        fundraiser_id INTEGER NOT NULL,
-                        FOREIGN KEY (fundraiser_id) REFERENCES fundraisers (fundraiser_id) ON DELETE CASCADE,
-                        FOREIGN KEY (pledger_player_id) REFERENCES players (player_id) ON DELETE CASCADE
-                    )
-            '''))
 
             if db_type == "sqlite":
                 fundraiser_columns_to_add = {
@@ -632,7 +623,6 @@ def get_player_stats(player_id):
             career_stats["avg_ppm"] = (total_putts / total_duration_minutes) if total_duration_minutes > 0 else 0
             career_stats["avg_mpm"] = (base_stats.get('total_makes', 0) / total_duration_minutes) if total_duration_minutes > 0 else 0
         if total_putts > 0:
-            if total_putts > 0:
             career_stats["avg_accuracy"] = (base_stats.get('total_makes', 0) / total_putts) * 100
 
         # Final cleanup for JSON compatibility
