@@ -302,7 +302,19 @@ def initialize_database():
                     CREATE TABLE IF NOT EXISTS duels (
                         duel_id {session_id_type},
                         creator_id INTEGER NOT NULL,
+                        invited_player_id INTEGER NOT NULL,
+                        status TEXT NOT NULL DEFAULT 'pending',
+                        winner_id INTEGER,
+                        creator_submitted_session_id INTEGER,
+                        invited_player_submitted_session_id INTEGER,
+                        created_at {timestamp_type} DEFAULT {default_timestamp},
+                        invitation_expires_at {timestamp_type},
+                        session_duration_limit_minutes INTEGER,
+                        invitation_expiry_minutes INTEGER,
+                        FOREIGN KEY (creator_id) REFERENCES players (player_id) ON DELETE CASCADE,
+                        FOREIGN KEY (invited_player_id) REFERENCES players (player_id) ON DELETE CASCADE,
                         FOREIGN KEY (creator_submitted_session_id) REFERENCES sessions (session_id),
+                        FOREIGN KEY (invited_player_submitted_session_id) REFERENCES sessions (session_id),
                         FOREIGN KEY (winner_id) REFERENCES players (player_id)
                     )
             '''))
