@@ -4,28 +4,7 @@
   ],
   "functions": {
     "api/index.py": {
-      "runtime": "python3.9"
-    },
-    "api/leaderboards.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/login.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/register.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/sessions.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/start-calibration.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/start-session.js": {
-      "runtime": "@vercel/node@2.0.0"
-    },
-    "api/player/**/*.js": {
-      "runtime": "@vercel/node@2.0.0"
+      "runtime": "@vercel/python@3.9"
     }
   },
   "build": {
