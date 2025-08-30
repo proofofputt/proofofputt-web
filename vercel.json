@@ -1,15 +1,1 @@
-{
-  "buildCommand": "cd apps/web && npm install && npm run build",
-  "outputDirectory": "apps/web/dist",
-  "functions": {
-    "apps/api/api.py": {
-      "runtime": "python3.9"
-    }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/apps/api/api.py"
-    }
-  ]
-}
+{}
