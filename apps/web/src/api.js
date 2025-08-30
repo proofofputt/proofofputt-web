@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = '/api';
 
 // A more robust response handler that checks for JSON content type
 const handleResponse = async (response) => {
