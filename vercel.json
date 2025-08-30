@@ -1,14 +1,8 @@
 {
-  "version": 2,
-  "name": "proofofputt",
   "builds": [
     {
       "src": "apps/api/api.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.12",
-        "maxDuration": 30
-      }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
