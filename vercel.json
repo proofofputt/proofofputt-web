@@ -3,14 +3,6 @@
   "name": "proofofputt",
   "builds": [
     {
-      "src": "apps/web/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "buildCommand": "npm run build"
-      }
-    },
-    {
       "src": "apps/api/api.py",
       "use": "@vercel/python",
       "config": {
@@ -23,17 +15,14 @@
     {
       "src": "/api/(.*)",
       "dest": "apps/api/api.py"
-    }
-  ],
-  "rewrites": [
+    },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/app/(.*)",
+      "dest": "/app/$1"
+    },
+    {
+      "src": "/app",
+      "dest": "/app/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "VITE_API_BASE_URL": "https://proofofputt-git-main-nicholas-kirwans-projects.vercel.app"
-  }
-  
+  ]
 }
