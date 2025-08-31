@@ -84,13 +84,11 @@ function Dashboard() {
     return null; // ProtectedRoute will redirect to login
   }
   
-  // If playerData exists but stats are missing, show error instead of loading
+  // If playerData exists but stats are missing, clear corrupted data and redirect to login
   if (!playerData.stats) {
-    return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <p>Unable to load player stats. <button onClick={() => window.location.reload()} className="btn btn-secondary">Refresh Page</button></p>
-      </div>
-    );
+    localStorage.removeItem('playerData');
+    window.location.href = '/login';
+    return null;
   }
 
   const { stats, sessions } = playerData;
