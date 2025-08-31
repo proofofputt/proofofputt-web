@@ -9,6 +9,10 @@ from math import atan2, degrees
 
 # Gemin-added: Import the data manager
 import data_manager
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 def get_available_cameras():
     """
@@ -106,47 +110,161 @@ def average_points_to_dodecagon(points):
     return dodecagon_points, centroid
 
 def infer_hole_quadrants(roi_data):
+    """
+    Infer hole quadrant ROIs from the main HOLE_ROI using icosagon method.
+    Enhanced with proper error handling and validation.
+    """
     if "HOLE_ROI" not in roi_data or len(roi_data["HOLE_ROI"]) < 3:
         print("Warning: HOLE_ROI not defined or has fewer than 3 points. Cannot infer hole quadrants.")
-        return
+        return False
 
-    hole_points = np.array(roi_data["HOLE_ROI"], dtype=np.int32)
+    try:
+        hole_points = np.array(roi_data["HOLE_ROI"], dtype=np.int32)
 
-    # --- Icosagon-based quadrant inference (from visualize_hole_rois_v2.py) ---
-    M = cv2.moments(hole_points)
-    if M["m00"] == 0:
-        print("Error: Could not calculate centroid of HOLE_ROI. Cannot infer quadrants.")
-        return
-    
-    center_x = int(M["m10"] / M["m00"])
-    center_y = int(M["m01"] / M["m00"])
-    center_point = (center_x, center_y)
+        # --- Icosagon-based quadrant inference (from visualize_hole_rois_v2.py) ---
+        M = cv2.moments(hole_points)
+        if M["m00"] == 0:
+            print("Error: Could not calculate centroid of HOLE_ROI. Cannot infer quadrants.")
+            return False
+        
+        center_x = int(M["m10"] / M["m00"])
+        center_y = int(M["m01"] / M["m00"])
+        center_point = (center_x, center_y)
 
-    distances = [np.linalg.norm(np.array(center_point) - point) for point in hole_points]
-    average_radius = np.mean(distances)
+        # Validate center point is reasonable
+        if center_x < 0 or center_y < 0:
+            print("Error: Invalid center point calculated. Cannot infer quadrants.")
+            return False
 
-    num_vertices = 20
-    icosagon_vertices = []
-    start_angle_offset = -9 # degrees, fine-tuned for visual alignment
-    for i in range(num_vertices):
-        angle = math.radians((360 / num_vertices) * i + start_angle_offset)
-        x = center_x + average_radius * math.cos(angle)
-        y = center_y + average_radius * math.sin(angle)
-        icosagon_vertices.append([int(x), int(y)])
+        distances = [np.linalg.norm(np.array(center_point) - point) for point in hole_points]
+        average_radius = np.mean(distances)
+        
+        # Validate radius is reasonable
+        if average_radius <= 0 or average_radius > 1000:  # Sanity check for radius
+            print(f"Warning: Calculated radius {average_radius} seems unreasonable. Proceeding anyway.")
 
-    # Define New Quadrant ROIs with Shared Vertices (7 points: 1 center + 6 on arc)
-    roi_data["HOLE_TOP_ROI"] = [list(center_point)] + [icosagon_vertices[i % 20] for i in range(18, 24)]
-    roi_data["HOLE_RIGHT_ROI"] = [list(center_point)] + [icosagon_vertices[i] for i in range(3, 9)]
-    roi_data["HOLE_LOW_ROI"] = [list(center_point)] + [icosagon_vertices[i] for i in range(8, 14)]
-    roi_data["HOLE_LEFT_ROI"] = [list(center_point)] + [icosagon_vertices[i] for i in range(13, 19)]
-    
-    print("Inferred HOLE_TOP_ROI, HOLE_RIGHT_ROI, HOLE_LOW_ROI, HOLE_LEFT_ROI using icosagon analysis.")
+        num_vertices = 20
+        icosagon_vertices = []
+        start_angle_offset = -9  # degrees, fine-tuned for visual alignment
+        
+        for i in range(num_vertices):
+            angle = math.radians((360 / num_vertices) * i + start_angle_offset)
+            x = center_x + average_radius * math.cos(angle)
+            y = center_y + average_radius * math.sin(angle)
+            icosagon_vertices.append([int(x), int(y)])
+
+        # Validate we have the correct number of vertices
+        if len(icosagon_vertices) != num_vertices:
+            print("Error: Failed to generate correct number of icosagon vertices.")
+            return False
+
+        # Define New Quadrant ROIs with Shared Vertices (7 points: 1 center + 6 on arc)
+        # Validate indices to prevent out-of-bounds errors
+        roi_data["HOLE_TOP_ROI"] = [list(center_point)] + [icosagon_vertices[i % 20] for i in range(18, 24)]
+        roi_data["HOLE_RIGHT_ROI"] = [list(center_point)] + [icosagon_vertices[i] for i in range(3, 9)]
+        roi_data["HOLE_LOW_ROI"] = [list(center_point)] + [icosagon_vertices[i] for i in range(8, 14)]
+        roi_data["HOLE_LEFT_ROI"] = [list(center_point)] + [icosagon_vertices[i] for i in range(13, 19)]
+        
+        # Validate each ROI has the expected number of points (7 points each)
+        quadrant_names = ["HOLE_TOP_ROI", "HOLE_RIGHT_ROI", "HOLE_LOW_ROI", "HOLE_LEFT_ROI"]
+        for name in quadrant_names:
+            if len(roi_data[name]) != 7:
+                print(f"Warning: {name} has {len(roi_data[name])} points instead of expected 7.")
+        
+        print(f"Successfully inferred hole quadrant ROIs using icosagon analysis.")
+        print(f"Center: ({center_x}, {center_y}), Radius: {average_radius:.1f}, Offset: {start_angle_offset}°")
+        return True
+        
+    except Exception as e:
+        print(f"Error during ROI quadrant inference: {e}")
+        return False
 
 def compute_circle_and_arcs(points):
     # Placeholder function for compute_circle_and_arcs
     # In a real scenario, this would compute the best-fit circle and arc data from the 12 points
     print("Warning: Using placeholder for compute_circle_and_arcs. Implement actual logic for accurate hole data.")
     return None, None, None
+
+def save_calibration_to_database(player_id, calibration_data):
+    """
+    Save calibration data to database via data_manager.
+    Enhanced with proper error handling and validation.
+    """
+    try:
+        # Validate input data
+        if not player_id or not isinstance(player_id, int):
+            logger.error("Invalid player_id provided for calibration save")
+            return False
+            
+        if not calibration_data or not isinstance(calibration_data, dict):
+            logger.error("Invalid calibration_data provided")
+            return False
+        
+        # Ensure required ROIs exist and are valid
+        required_rois = ["HOLE_ROI", "CATCH_ROI", "RETURN_ROI", "MAT_ROI"]
+        for roi_name in required_rois:
+            if roi_name not in calibration_data:
+                logger.warning(f"Missing required ROI: {roi_name}")
+            elif len(calibration_data.get(roi_name, [])) < 3:
+                logger.warning(f"ROI {roi_name} has insufficient points (<3)")
+        
+        # Add metadata
+        calibration_data['calibration_timestamp'] = datetime.now().isoformat()
+        calibration_data['calibration_version'] = '1.0'
+        
+        # Convert to JSON string for database storage
+        calibration_json = json.dumps(calibration_data)
+        
+        # Save to database
+        pool = data_manager.get_db_connection()
+        with pool.connect() as conn:
+            conn.execute(
+                data_manager.sqlalchemy.text("""
+                    UPDATE players 
+                    SET calibration_data = :calibration_data 
+                    WHERE player_id = :player_id
+                """),
+                {
+                    "player_id": player_id,
+                    "calibration_data": calibration_json
+                }
+            )
+            conn.commit()
+        
+        logger.info(f"Successfully saved calibration data for player {player_id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error saving calibration data for player {player_id}: {e}")
+        return False
+
+def load_calibration_from_database(player_id):
+    """
+    Load calibration data from database for a specific player.
+    """
+    try:
+        pool = data_manager.get_db_connection()
+        with pool.connect() as conn:
+            result = conn.execute(
+                data_manager.sqlalchemy.text("""
+                    SELECT calibration_data 
+                    FROM players 
+                    WHERE player_id = :player_id
+                """),
+                {"player_id": player_id}
+            ).mappings().first()
+            
+            if result and result['calibration_data']:
+                calibration_data = json.loads(result['calibration_data'])
+                logger.info(f"Successfully loaded calibration data for player {player_id}")
+                return calibration_data
+            else:
+                logger.info(f"No calibration data found for player {player_id}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error loading calibration data for player {player_id}: {e}")
+        return None
 
 def infer_left_of_mat_roi(roi_data):
     if "PUTTING_MAT_ROI" not in roi_data:

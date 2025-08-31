@@ -35,34 +35,48 @@ export default function handler(req, res) {
     }
   }
 
-  if (req.method === 'POST') {
+  if (req.method === 'POST' || req.method === 'PUT') {
     if (!playerId) {
       return res.status(400).json({ error: 'Player ID is required' });
     }
 
-    // Handle calibration creation/update
-    const calibrationData = req.body;
-    
-    // Store calibration data (in production, this would be saved to database)
-    const calibrationKey = `calibration_${playerId}`;
-    const updatedCalibration = {
-      is_calibrated: calibrationData.is_calibrated || false,
-      calibration_date: calibrationData.calibration_date || new Date().toISOString(),
-      camera_index: calibrationData.camera_index || 0,
-      roi_coordinates: calibrationData.roi_coordinates || null,
-      calibration_quality: calibrationData.calibration_quality || 'unknown',
-      notes: calibrationData.notes || 'Calibration updated',
-      desktop_connected: calibrationData.desktop_connected || false,
-      last_updated: new Date().toISOString()
-    };
-    
-    // Store in global memory (demo only)
-    global[calibrationKey] = updatedCalibration;
-    
-    return res.status(200).json({
-      message: 'Calibration saved successfully',
-      ...updatedCalibration
-    });
+    try {
+      // Handle calibration creation/update
+      const calibrationData = req.body;
+      
+      // Validate required data
+      if (calibrationData.is_calibrated && (!calibrationData.roi_coordinates)) {
+        return res.status(400).json({ error: 'ROI coordinates required when is_calibrated is true' });
+      }
+      
+      // Store calibration data (in production, this would be saved to database)
+      const calibrationKey = `calibration_${playerId}`;
+      const updatedCalibration = {
+        is_calibrated: calibrationData.is_calibrated || false,
+        calibration_date: calibrationData.calibration_date || new Date().toISOString(),
+        camera_index: calibrationData.camera_index || 0,
+        roi_coordinates: calibrationData.roi_coordinates || null,
+        calibration_quality: calibrationData.calibration_quality || 'unknown',
+        notes: calibrationData.notes || 'Calibration updated',
+        desktop_connected: calibrationData.desktop_connected || false,
+        last_updated: new Date().toISOString()
+      };
+      
+      // Store in global memory (demo only - in production, save to data_manager)
+      global[calibrationKey] = updatedCalibration;
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Calibration saved successfully',
+        ...updatedCalibration
+      });
+    } catch (error) {
+      console.error('Calibration update error:', error);
+      return res.status(500).json({ 
+        error: 'Failed to update calibration data',
+        details: error.message 
+      });
+    }
   }
 
   return res.status(405).json({ error: 'Method not allowed' });

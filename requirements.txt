@@ -1,0 +1,34 @@
+# Core Flask dependencies
+Flask==3.0.0
+flask-cors==4.0.0
+
+# Database dependencies
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.10
+
+# Authentication and security
+bcrypt==4.1.2
+werkzeug==3.0.1
+
+# WebSocket support
+flask-socketio==5.3.6
+python-socketio==5.10.0
+
+# Date/time handling
+pytz==2023.3
+
+# Development and logging
+python-dotenv==1.0.0
+
+# Computer Vision (for desktop integration)
+opencv-python==4.8.1.78
+numpy==1.24.3
+
+# Email support (if needed)
+# sendgrid==6.10.0
+
+# Rate limiting (for API protection)
+flask-limiter==3.5.0
+
+# JWT tokens (for authentication)
+flask-jwt-extended==4.6.0

@@ -54,20 +54,35 @@ def update_obs_text_files(stats, is_subscribed):
     total_makes, total_misses, consecutive_makes, max_consecutive_makes = stats
     obs_dir = os.path.join(os.path.dirname(__file__), "obs_text_files")
     
+    # Ensure OBS directory exists
+    try:
+        os.makedirs(obs_dir, exist_ok=True)
+    except OSError as e:
+        debug_logger.error(f"Could not create OBS directory {obs_dir}: {e}")
+        return
+    
     files_to_update = {
-        "MadePutts.txt": total_makes,
-        "MissedPutts.txt": total_misses,
-        "TotalPutts.txt": total_makes + total_misses,
-        "CurrentStreak.txt": consecutive_makes,
-        "MaxStreak.txt": max_consecutive_makes
+        "MadePutts.txt": int(total_makes) if total_makes is not None else 0,
+        "MissedPutts.txt": int(total_misses) if total_misses is not None else 0,
+        "TotalPutts.txt": int((total_makes or 0) + (total_misses or 0)),
+        "CurrentStreak.txt": int(consecutive_makes) if consecutive_makes is not None else 0,
+        "MaxStreak.txt": int(max_consecutive_makes) if max_consecutive_makes is not None else 0
     }
 
     for filename, value in files_to_update.items():
         try:
             with open(os.path.join(obs_dir, filename), "w") as f:
+                # Ensure we write pure numbers without any units or formatting
                 f.write(str(value))
-        except IOError as e:
+            debug_logger.debug(f"Updated OBS file {filename} with value: {value}")
+        except (IOError, TypeError, ValueError) as e:
             debug_logger.error(f"Could not write to OBS file {filename}: {e}")
+            # Write a default value to prevent file corruption
+            try:
+                with open(os.path.join(obs_dir, filename), "w") as f:
+                    f.write("0")
+            except IOError:
+                pass  # If we can't even write 0, there's a deeper issue
 
 # --- Gemini Refactor: Added Helper Functions from Prototype ---
 

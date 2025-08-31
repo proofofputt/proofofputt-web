@@ -283,11 +283,36 @@ def initialize_database():
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS player_stats (
                         player_id INTEGER PRIMARY KEY,
+                        total_makes INTEGER DEFAULT 0,
+                        total_misses INTEGER DEFAULT 0,
                         total_putts INTEGER DEFAULT 0,
-                        fastest_21_makes REAL,
+                        best_streak INTEGER DEFAULT 0,
+                        fastest_21_makes REAL DEFAULT 0,
+                        total_duration REAL DEFAULT 0,
+                        last_updated {timestamp_type} DEFAULT {default_timestamp},
                         FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
                     )
             '''))
+            
+            # Add missing columns for existing player_stats tables
+            if db_type == "postgresql":
+                inspector = sqlalchemy.inspect(conn)
+                if inspector.has_table('player_stats'):
+                    existing_columns = [c['name'] for c in inspector.get_columns('player_stats')]
+                    missing_columns = {
+                        'total_makes': 'INTEGER DEFAULT 0',
+                        'total_misses': 'INTEGER DEFAULT 0',
+                        'best_streak': 'INTEGER DEFAULT 0',
+                        'total_duration': 'REAL DEFAULT 0',
+                        'last_updated': f'{timestamp_type} DEFAULT {default_timestamp}'
+                    }
+                    for col_name, col_def in missing_columns.items():
+                        if col_name not in existing_columns:
+                            try:
+                                conn.execute(sqlalchemy.text(f'ALTER TABLE player_stats ADD COLUMN {col_name} {col_def}'))
+                                logger.info(f"Added column '{col_name}' to 'player_stats' table.")
+                            except Exception as e:
+                                logger.error(f"Error adding column '{col_name}' to 'player_stats' table: {e}")
 
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS coach_conversations (
@@ -302,7 +327,17 @@ def initialize_database():
                     CREATE TABLE IF NOT EXISTS duels (
                         duel_id {session_id_type},
                         creator_id INTEGER NOT NULL,
+                        invited_player_id INTEGER NOT NULL,
+                        status TEXT DEFAULT 'pending',
+                        settings TEXT,
+                        creator_submitted_session_id INTEGER,
+                        invited_submitted_session_id INTEGER,
+                        winner_id INTEGER,
+                        created_at {timestamp_type} DEFAULT {default_timestamp},
+                        FOREIGN KEY (creator_id) REFERENCES players (player_id) ON DELETE CASCADE,
+                        FOREIGN KEY (invited_player_id) REFERENCES players (player_id) ON DELETE CASCADE,
                         FOREIGN KEY (creator_submitted_session_id) REFERENCES sessions (session_id),
+                        FOREIGN KEY (invited_submitted_session_id) REFERENCES sessions (session_id),
                         FOREIGN KEY (winner_id) REFERENCES players (player_id)
                     )
             '''))
@@ -353,18 +388,35 @@ def initialize_database():
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS fundraisers (
                         fundraiser_id {session_id_type},
-                        player_id INTEGER NOT NULL,
-                        FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
+                        creator_id INTEGER NOT NULL,
+                        title TEXT NOT NULL,
+                        description TEXT,
+                        charity_name TEXT NOT NULL,
+                        charity_wallet_address TEXT,
+                        target_amount REAL,
+                        current_amount REAL DEFAULT 0,
+                        sat_per_putt INTEGER DEFAULT 100,
+                        start_date {timestamp_type},
+                        end_date {timestamp_type},
+                        status TEXT DEFAULT 'active',
+                        created_at {timestamp_type} DEFAULT {default_timestamp},
+                        FOREIGN KEY (creator_id) REFERENCES players (player_id) ON DELETE CASCADE
                     )
-
             '''))
 
             conn.execute(sqlalchemy.text(f'''
                     CREATE TABLE IF NOT EXISTS pledges (
                         pledge_id {session_id_type},
                         fundraiser_id INTEGER NOT NULL,
+                        pledger_id INTEGER NOT NULL,
+                        amount_per_putt INTEGER NOT NULL,
+                        max_amount REAL,
+                        total_pledged REAL DEFAULT 0,
+                        total_paid REAL DEFAULT 0,
+                        status TEXT DEFAULT 'active',
+                        created_at {timestamp_type} DEFAULT {default_timestamp},
                         FOREIGN KEY (fundraiser_id) REFERENCES fundraisers (fundraiser_id) ON DELETE CASCADE,
-                        FOREIGN KEY (pledger_player_id) REFERENCES players (player_id) ON DELETE CASCADE
+                        FOREIGN KEY (pledger_id) REFERENCES players (player_id) ON DELETE CASCADE
                     )
             '''))
 
@@ -403,15 +455,39 @@ def initialize_database():
             if not pop_user:
                 logger.info("Default user 'pop@proofofputt.com' not found. Creating...")
                 password_hash = bcrypt.hashpw("passwordpop123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                insert_sql = "INSERT INTO players (email, name, password_hash, timezone) VALUES (:email, :name, :password_hash, :timezone)"
-                result = conn.execute(sqlalchemy.text(insert_sql), {
-                    "email": "pop@proofofputt.com",
-                    "name": "POP",
-                    "password_hash": password_hash,
-                    "timezone": "UTC"
+                
+                if db_type == "postgresql":
+                    insert_sql = "INSERT INTO players (email, name, password_hash, timezone) VALUES (:email, :name, :password_hash, :timezone) RETURNING player_id"
+                    result = conn.execute(sqlalchemy.text(insert_sql), {
+                        "email": "pop@proofofputt.com",
+                        "name": "POP",
+                        "password_hash": password_hash,
+                        "timezone": "UTC"
+                    })
+                    player_id = result.scalar()
+                else:
+                    insert_sql = "INSERT INTO players (email, name, password_hash, timezone) VALUES (:email, :name, :password_hash, :timezone)"
+                    result = conn.execute(sqlalchemy.text(insert_sql), {
+                        "email": "pop@proofofputt.com",
+                        "name": "POP",
+                        "password_hash": password_hash,
+                        "timezone": "UTC"
+                    })
+                    player_id = result.lastrowid
+                
+                # Initialize player stats with zeros
+                conn.execute(sqlalchemy.text('''
+                    INSERT INTO player_stats (
+                        player_id, total_makes, total_misses, total_putts, 
+                        best_streak, fastest_21_makes, total_duration, last_updated
+                    ) VALUES (
+                        :player_id, 0, 0, 0, 0, 0, 0.0, :current_time
+                    )
+                '''), {
+                    "player_id": player_id, 
+                    "current_time": datetime.utcnow()
                 })
-                player_id = result.scalar() if db_type == "postgresql" else result.lastrowid
-                conn.execute(sqlalchemy.text("INSERT INTO player_stats (player_id) VALUES (:player_id)"), {"player_id": player_id})
+                
                 pop_user = {'player_id': player_id, 'subscription_status': 'free'}
                 logger.info(f"Registered new default player 'POP' with ID {player_id}.")
 # create_default_session_if_needed(player_id, conn) - Removed as requested
@@ -529,10 +605,26 @@ def _aggregate_session_misses(putt_list, career_stats):
         career_stats["misses_detailed"][detail]["high"] = max(career_stats["misses_detailed"][detail]["high"], count)
         career_stats["misses_detailed"][detail]["sum"] += count
 
+def safe_divide(numerator, denominator, default=0):
+    """Safely divide two numbers, returning default if denominator is 0 or None."""
+    if not denominator or denominator == 0:
+        return default
+    try:
+        result = numerator / denominator
+        return result if not (result == float('inf') or result != result) else default  # Check for inf/NaN
+    except (TypeError, ZeroDivisionError):
+        return default
+
+def safe_value(value, default=0):
+    """Return a safe value, replacing None, inf, or NaN with default."""
+    if value is None or value == float('inf') or (isinstance(value, float) and value != value):
+        return default
+    return value
+
 def get_player_stats(player_id):
     """
     Aggregates and calculates comprehensive career statistics for a player.
-    This function replaces the previous simpler version.
+    This function replaces the previous simpler version with improved error handling.
     """
     pool = get_db_connection()
     with pool.connect() as conn:
@@ -596,14 +688,19 @@ def get_player_stats(player_id):
                     _aggregate_session_misses(putt_list, career_stats)
                 except (json.JSONDecodeError, TypeError): pass
 
-        career_stats["sum_duration"] = total_duration_seconds
-        total_putts = base_stats.get('total_putts', 0)
-        if total_duration_seconds > 0:
-            total_duration_minutes = total_duration_seconds / 60.0
-            career_stats["avg_ppm"] = (total_putts / total_duration_minutes) if total_duration_minutes > 0 else 0
-            career_stats["avg_mpm"] = (base_stats.get('total_makes', 0) / total_duration_minutes) if total_duration_minutes > 0 else 0
-        if total_putts > 0:
-            career_stats["avg_accuracy"] = (base_stats.get('total_makes', 0) / total_putts) * 100
+        career_stats["sum_duration"] = safe_value(total_duration_seconds)
+        total_putts = safe_value(base_stats.get('total_putts', 0))
+        total_makes = safe_value(base_stats.get('total_makes', 0))
+        
+        # Safe calculations with proper defaults
+        total_duration_minutes = safe_divide(total_duration_seconds, 60.0)
+        career_stats["avg_ppm"] = safe_divide(total_putts, total_duration_minutes)
+        career_stats["avg_mpm"] = safe_divide(total_makes, total_duration_minutes)
+        career_stats["avg_accuracy"] = safe_divide(total_makes, total_putts) * 100 if total_putts > 0 else 0
+        
+        # Ensure fastest_21 is properly handled (0 if None or inf, otherwise keep value)
+        fastest_21 = base_stats.get('fastest_21_makes')
+        career_stats["low_fastest_21"] = safe_value(fastest_21, 0)
 
         # Final cleanup for JSON compatibility
         for detail in career_stats.get("misses_detailed", {}).values():
@@ -614,6 +711,112 @@ def get_player_stats(player_id):
                 category["low"] = 0  # Use 0 instead of None for new players
 
         return career_stats
+
+def recalculate_player_stats(player_id):
+    """
+    Recalculates and updates player stats in the database, handling N/A and division by zero issues.
+    This should be called to clean up any existing problematic data.
+    """
+    pool = get_db_connection()
+    with pool.connect() as conn:
+        # Get all sessions for the player
+        sessions_result = conn.execute(
+            sqlalchemy.text("""
+                SELECT total_putts, total_makes, total_misses, best_streak, 
+                       fastest_21_makes, session_duration, putt_list
+                FROM sessions 
+                WHERE player_id = :player_id 
+                ORDER BY start_time
+            """),
+            {"player_id": player_id}
+        ).mappings().fetchall()
+        
+        if not sessions_result:
+            # No sessions - set all to zero
+            conn.execute(
+                sqlalchemy.text("""
+                    UPDATE player_stats 
+                    SET total_makes = 0, total_misses = 0, total_putts = 0,
+                        best_streak = 0, fastest_21_makes = 0, total_duration = 0.0,
+                        last_updated = :current_time
+                    WHERE player_id = :player_id
+                """),
+                {"player_id": player_id, "current_time": datetime.utcnow()}
+            )
+            conn.commit()
+            return
+            
+        # Calculate aggregated stats
+        total_makes = 0
+        total_misses = 0  
+        total_putts = 0
+        best_streak = 0
+        total_duration = 0.0
+        make_timestamps = []  # For fastest 21 calculation
+        
+        for session in sessions_result:
+            total_makes += safe_value(session.get('total_makes', 0))
+            total_misses += safe_value(session.get('total_misses', 0))
+            total_putts += safe_value(session.get('total_putts', 0))
+            best_streak = max(best_streak, safe_value(session.get('best_streak', 0)))
+            total_duration += safe_value(session.get('session_duration', 0))
+            
+            # Extract make timestamps for fastest 21 calculation
+            if session.get('putt_list'):
+                try:
+                    putt_list = json.loads(session['putt_list'])
+                    for putt in putt_list:
+                        if putt.get('Putt Classification') == 'MAKE':
+                            timestamp = safe_value(putt.get('current_frame_time', 0))
+                            if timestamp > 0:
+                                make_timestamps.append(timestamp)
+                except (json.JSONDecodeError, TypeError, KeyError):
+                    continue
+        
+        # Calculate fastest 21 makes
+        fastest_21 = 0
+        if len(make_timestamps) >= 21:
+            make_timestamps.sort()
+            fastest_21_times = []
+            for i in range(len(make_timestamps) - 20):
+                time_span = make_timestamps[i + 20] - make_timestamps[i]
+                if time_span > 0:
+                    fastest_21_times.append(time_span)
+            fastest_21 = min(fastest_21_times) if fastest_21_times else 0
+        
+        # Update player stats with safe values
+        conn.execute(
+            sqlalchemy.text("""
+                UPDATE player_stats 
+                SET total_makes = :total_makes, 
+                    total_misses = :total_misses, 
+                    total_putts = :total_putts,
+                    best_streak = :best_streak, 
+                    fastest_21_makes = :fastest_21, 
+                    total_duration = :total_duration,
+                    last_updated = :current_time
+                WHERE player_id = :player_id
+            """),
+            {
+                "player_id": player_id,
+                "total_makes": total_makes,
+                "total_misses": total_misses, 
+                "total_putts": total_putts,
+                "best_streak": best_streak,
+                "fastest_21": fastest_21,
+                "total_duration": total_duration,
+                "current_time": datetime.utcnow()
+            }
+        )
+        conn.commit()
+        logger.info(f"Recalculated stats for player {player_id}: {total_makes} makes, {total_putts} putts, fastest_21: {fastest_21}")
+        
+        return {
+            "total_makes": total_makes,
+            "total_putts": total_putts, 
+            "fastest_21": fastest_21,
+            "total_duration": total_duration
+        }
 
 def get_sessions_for_player(player_id, limit=25, offset=0):
     pool = get_db_connection()
@@ -1426,54 +1629,6 @@ def _determine_duel_winner(duel_id, conn):
     )
     logger.info(f"Duel {duel_id} completed. Winner is player {winner_id}.")
     # TODO: Create notifications for both players about the result.
-
-def recalculate_player_stats(player_id, conn):
-    """
-    Recalculates and updates a player's aggregate career stats.
-    Expects to be called within an existing transaction.
-    """
-    # Calculate new aggregate stats from all sessions for the player
-    aggregated_stats = conn.execute(
-        sqlalchemy.text("""
-            SELECT
-                SUM(total_putts) as total_putts,
-                SUM(total_makes) as total_makes,
-                SUM(total_misses) as total_misses,
-                MAX(best_streak) as best_streak
-            FROM sessions
-            WHERE player_id = :player_id
-        """),
-        {"player_id": player_id}
-    ).mappings().first()
-
-    if not aggregated_stats or aggregated_stats['total_putts'] is None:
-        stats_to_update = {
-            "total_putts": 0, "total_makes": 0, "total_misses": 0,
-            "best_streak": 0, "player_id": player_id
-        }
-    else:
-        stats_to_update = dict(aggregated_stats)
-        stats_to_update['player_id'] = player_id
-
-    db_type = conn.dialect.name
-    if db_type == 'postgresql':
-        upsert_sql = """
-            INSERT INTO player_stats (player_id, total_putts, total_makes, total_misses, best_streak)
-            VALUES (:player_id, :total_putts, :total_makes, :total_misses, :best_streak)
-            ON CONFLICT (player_id) DO UPDATE SET
-                total_putts = EXCLUDED.total_putts,
-                total_makes = EXCLUDED.total_makes,
-                total_misses = EXCLUDED.total_misses,
-                best_streak = EXCLUDED.best_streak;
-        """
-    else: # SQLite
-        upsert_sql = """
-            INSERT OR REPLACE INTO player_stats (player_id, total_putts, total_makes, total_misses, best_streak)
-            VALUES (:player_id, :total_putts, :total_makes, :total_misses, :best_streak);
-        """
-    
-    conn.execute(sqlalchemy.text(upsert_sql), stats_to_update)
-    logger.info(f"Recalculated and updated career stats for player {player_id}.")
 
 def get_all_time_leaderboards(limit=10):
     """Retrieves a dictionary of all-time leaderboards for various metrics."""

@@ -120,12 +120,21 @@ class SessionReporter:
             self.putts_per_minute = 0
             self.makes_per_minute = 0
 
-        # Calculate Fastest 21 Makes
+        # Calculate Fastest 21 Makes with error handling
         if len(self.make_timestamps) >= 21:
-            for i in range(len(self.make_timestamps) - 20):
-                time_diff = self.make_timestamps[i + 20] - self.make_timestamps[i]
-                if time_diff < self.fastest_21_makes:
-                    self.fastest_21_makes = time_diff
+            try:
+                # Ensure timestamps are sorted
+                sorted_timestamps = sorted(self.make_timestamps)
+                for i in range(len(sorted_timestamps) - 20):
+                    time_diff = sorted_timestamps[i + 20] - sorted_timestamps[i]
+                    if time_diff > 0 and time_diff < self.fastest_21_makes:
+                        self.fastest_21_makes = time_diff
+            except (IndexError, TypeError, ValueError) as e:
+                print(f"Error calculating fastest 21 makes: {e}")
+                self.fastest_21_makes = float('inf')
+        else:
+            # Not enough makes for fastest 21 calculation
+            self.fastest_21_makes = float('inf')
 
         # Calculate Most Makes in 60 seconds
         if len(self.make_timestamps) > 0:
@@ -173,7 +182,7 @@ class SessionReporter:
                 "putts_per_minute": round(self.putts_per_minute, 2),
                 "makes_per_minute": round(self.makes_per_minute, 2),
                 "most_makes_in_60_seconds": self.most_makes_in_60_seconds,
-                "fastest_21_makes_seconds": round(self.fastest_21_makes, 2) if self.fastest_21_makes != float('inf') else None,
+                "fastest_21_makes_seconds": round(self.fastest_21_makes, 2) if self.fastest_21_makes != float('inf') else 0,
             },
             "putt_list": self.putt_data
         }
