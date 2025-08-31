@@ -1,44 +1,29 @@
-export default function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
 
+import { getDb } from './db.js';
+import withCors from './middleware/cors.js';
+
+async function sessionsHandler(req, res) {
   const { player_id } = req.query;
 
+  if (!player_id) {
+    return res.status(400).json({ error: 'player_id is required' });
+  }
+
   if (req.method === 'GET') {
-    return res.status(200).json([
-      {
-        session_id: 1,
-        player_id: parseInt(player_id) || 1,
-        start_time: '2025-08-30T14:00:00Z',
-        end_time: '2025-08-30T14:15:00Z',
-        total_putts: 45,
-        total_makes: 32,
-        total_misses: 13,
-        make_percentage: 71.1,
-        best_streak: 8,
-        session_duration: 900,
-        status: 'completed'
-      },
-      {
-        session_id: 2,
-        player_id: parseInt(player_id) || 1,
-        start_time: '2025-08-29T16:30:00Z',
-        end_time: '2025-08-29T16:45:00Z',
-        total_putts: 38,
-        total_makes: 25,
-        total_misses: 13,
-        make_percentage: 65.8,
-        best_streak: 5,
-        session_duration: 750,
-        status: 'completed'
-      }
-    ]);
+    const db = getDb();
+    try {
+      const query = 'SELECT * FROM sessions WHERE player_id = $1 ORDER BY start_time DESC';
+      const result = await db.query(query, [player_id]);
+      const sessions = result.rows;
+
+      return res.status(200).json(sessions);
+    } catch (error) {
+      console.error('Error fetching session data:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
+
+export default withCors(sessionsHandler);
