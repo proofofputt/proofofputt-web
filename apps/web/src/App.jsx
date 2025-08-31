@@ -35,11 +35,11 @@ const App = () => {
         {playerData && <Header />}
         <main className={location.pathname === '/coach' ? 'container-fluid' : 'container'}>
           <Routes>
-            {/* Public Route */}
+            {/* Public Routes */}
             <Route path="/login" element={<LoginPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-            {/* Protected Routes */}
+            {/* Root Route - Dashboard if authenticated, otherwise redirect to login */}
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/player/:playerId/sessions" element={<ProtectedRoute><SessionHistoryPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />

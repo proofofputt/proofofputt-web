@@ -79,8 +79,18 @@ function Dashboard() {
     setExpandedSessionId(prevId => (prevId === sessionId ? null : sessionId));
   };
 
-  if (!playerData || !playerData.stats) {
-    return <p>Loading player data...</p>;
+  // If no playerData at all, let ProtectedRoute handle redirect to login
+  if (!playerData) {
+    return null; // ProtectedRoute will redirect to login
+  }
+  
+  // If playerData exists but stats are missing, show error instead of loading
+  if (!playerData.stats) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <p>Unable to load player stats. <button onClick={() => window.location.reload()} className="btn btn-secondary">Refresh Page</button></p>
+      </div>
+    );
   }
 
   const { stats, sessions } = playerData;

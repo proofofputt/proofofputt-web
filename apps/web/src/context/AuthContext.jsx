@@ -14,7 +14,15 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    // Only show loading if we have stored player data that needs refreshing
+    try {
+      const storedData = localStorage.getItem('playerData');
+      return !!storedData; // Only loading if we have data to refresh
+    } catch (error) {
+      return false;
+    }
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
