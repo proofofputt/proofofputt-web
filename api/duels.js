@@ -8,25 +8,9 @@ export default function handler(req, res) {
   }
 
   if (req.method === 'GET') {
+    // TODO: Implement database query for active duels
     return res.status(200).json({
-      duels: [
-        { 
-          id: 1, 
-          challenger_name: "Pop", 
-          opponent_name: "Tiger", 
-          status: "active",
-          created_at: "2025-08-29T10:00:00Z",
-          stakes: "Loser buys coffee"
-        },
-        { 
-          id: 2, 
-          challenger_name: "Jordan", 
-          opponent_name: "Pop", 
-          status: "pending",
-          created_at: "2025-08-28T15:30:00Z",
-          stakes: "50 putts challenge"
-        }
-      ]
+      duels: []
     });
   }
   

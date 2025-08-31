@@ -10,34 +10,10 @@ export default function handler(req, res) {
   const { playerId } = req.query;
 
   if (req.method === 'GET') {
+    // TODO: Implement database query for player notifications
     return res.status(200).json({
-      notifications: [
-        { 
-          id: 1, 
-          type: "duel_challenge", 
-          title: "New Duel Challenge", 
-          message: "Tiger challenged you to a putting duel!",
-          read: false,
-          created_at: "2025-08-30T09:00:00Z"
-        },
-        { 
-          id: 2, 
-          type: "league_invite", 
-          title: "League Invitation", 
-          message: "You've been invited to join Masters Champions league",
-          read: false,
-          created_at: "2025-08-30T08:30:00Z"
-        },
-        { 
-          id: 3, 
-          type: "achievement", 
-          title: "New Achievement!", 
-          message: "You've achieved a 10-putt streak!",
-          read: true,
-          created_at: "2025-08-29T20:15:00Z"
-        }
-      ],
-      unread_count: 2
+      notifications: [],
+      unread_count: 0
     });
   }
 

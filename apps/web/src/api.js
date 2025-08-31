@@ -56,49 +56,7 @@ export const apiResetPassword = (token, newPassword) => {
 // --- Player Data & Settings ---
 export const apiGetPlayerData = (playerId) => fetch(`${API_BASE_URL}/player/${playerId}/data`).then(handleResponse);
 export const apiGetCareerStats = (playerId) => {
-  // DISABLED: Return mock data to avoid 500 errors
-  console.log("Career stats API disabled - returning mock stats");
-  return Promise.resolve({
-    player_id: playerId,
-    player_name: 'Pop',
-    high_makes: 32,
-    sum_makes: 57,
-    high_best_streak: 8,
-    low_fastest_21: 45.2,
-    high_most_in_60: 28,
-    high_ppm: 3.2,
-    avg_ppm: 2.8,
-    high_mpm: 2.4,
-    avg_mpm: 2.1,
-    high_duration: 900,
-    sum_duration: 1650,
-    consecutive: {
-      "3 feet": { high: 12, sum: 45 },
-      "6 feet": { high: 8, sum: 23 },
-      "9 feet": { high: 5, sum: 12 }
-    },
-    makes_overview: {
-      "Short putts": { high: 18, sum: 42 },
-      "Medium putts": { high: 12, sum: 15 },
-      "Long putts": { high: 2, sum: 0 }
-    },
-    makes_detailed: {
-      "1-3 feet": { high: 15, sum: 35 },
-      "4-6 feet": { high: 8, sum: 18 },
-      "7-9 feet": { high: 4, sum: 4 }
-    },
-    misses_overview: {
-      "Short misses": { high: 3, sum: 8 },
-      "Medium misses": { high: 5, sum: 12 },
-      "Long misses": { high: 4, sum: 6 }
-    },
-    misses_detailed: {
-      "Left of hole": { high: 2, sum: 6 },
-      "Right of hole": { high: 3, sum: 8 },
-      "Short of hole": { high: 2, sum: 7 },
-      "Long of hole": { high: 2, sum: 5 }
-    }
-  });
+  return fetch(`${API_BASE_URL}/player/${playerId}/career-stats`).then(handleResponse);
 };
 export const apiSearchPlayers = (searchTerm) => fetch(`${API_BASE_URL}/players/search?term=${searchTerm}`).then(handleResponse);
 
@@ -151,8 +109,7 @@ export const apiStartCalibration = (playerId) => {
 
 // --- Duels ---
 export const apiListDuels = (playerId) => {
-  console.log("Duels API disabled - returning mock duels");
-  return Promise.resolve([]);
+  return fetch(`${API_BASE_URL}/duels/list/${playerId}`).then(handleResponse);
 };
 export const apiGetPlayerVsPlayerDuels = (player1Id, player2Id) => fetch(`${API_BASE_URL}/players/${player1Id}/vs/${player2Id}/duels`).then(handleResponse);
 export const apiGetPlayerVsPlayerLeaderboard = (player1Id, player2Id) => fetch(`${API_BASE_URL}/players/${player1Id}/vs/${player2Id}/leaderboard`).then(handleResponse);
@@ -256,37 +213,33 @@ export const apiCreatePledge = (fundraiserId, pledgeData) => {
 
 // --- Notifications ---
 export const apiGetNotifications = (playerId, limit, offset) => {
-  // DISABLED: Return mock data to avoid 500 errors
-  console.log("Notifications API disabled - returning mock notifications");
-  return Promise.resolve({ 
-    notifications: [],
-    unread_count: 0,
-    total: 0,
-    player_id: playerId 
-  });
+  return fetch(`${API_BASE_URL}/notifications/${playerId}?limit=${limit || 25}&offset=${offset || 0}`).then(handleResponse);
 };
 export const apiGetUnreadNotificationsCount = (playerId) => {
-  // DISABLED: Return mock data to avoid 500 errors
-  console.log("Notifications API disabled - returning mock unread count");
-  return Promise.resolve({ unread_count: 0, player_id: playerId });
+  return fetch(`${API_BASE_URL}/notifications/${playerId}/unread-count`).then(handleResponse);
 };
 
 export const apiMarkNotificationAsRead = (notificationId, playerId) => {
-  // DISABLED: Return mock success
-  console.log("Mark notification API disabled - mock success");
-  return Promise.resolve({ success: true, notification_id: notificationId });
+  return fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ player_id: playerId }),
+  }).then(handleResponse);
 };
 
 export const apiMarkAllNotificationsAsRead = (playerId) => {
-  // DISABLED: Return mock success
-  console.log("Mark all notifications API disabled - mock success");
-  return Promise.resolve({ success: true, player_id: playerId });
+  return fetch(`${API_BASE_URL}/notifications/${playerId}/read-all`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }).then(handleResponse);
 };
 
 export const apiDeleteNotification = (notificationId, playerId) => {
-  // DISABLED: Return mock success
-  console.log("Delete notification API disabled - mock success");
-  return Promise.resolve({ success: true, notification_id: notificationId });
+  return fetch(`${API_BASE_URL}/notifications/${notificationId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ player_id: playerId }),
+  }).then(handleResponse);
 };
 
 // --- AI Coach ---
