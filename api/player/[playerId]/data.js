@@ -1,9 +1,12 @@
-export default function handler(req, res) {
+
+import { getDb } from '../db.js';
+
+export default async function handler(req, res) {
   // Set CORS headers for all requests
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -21,56 +24,58 @@ export default function handler(req, res) {
       return res.status(400).json({ error: 'Invalid Player ID' });
     }
 
-    return res.status(200).json({
-      player_id: playerIdNum,
-      name: 'Pop',
-      email: 'pop@proofofputt.com',
-      membership_tier: 'premium',
-      early_access_code: 'early',
-      subscription_status: 'active',
-      timezone: 'America/New_York',
-      stats: {
-        total_makes: 57,
-        total_misses: 26,
-        best_streak: 8,
-        make_percentage: 68.7,
-        total_putts: 83,
-        avg_distance: 6.2,
-        sessions_played: 2
-      },
-      sessions: [
-        {
-          session_id: 1,
-          start_time: '2025-08-30T14:00:00Z',
-          end_time: '2025-08-30T14:15:00Z',
-          total_putts: 45,
-          total_makes: 32,
-          total_misses: 13,
-          make_percentage: 71.1,
-          best_streak: 8,
-          session_duration: 900,
-          status: 'completed'
-        },
-        {
-          session_id: 2,
-          start_time: '2025-08-29T16:30:00Z',
-          end_time: '2025-08-29T16:45:00Z',
-          total_putts: 38,
-          total_makes: 25,
-          total_misses: 13,
-          make_percentage: 65.8,
-          best_streak: 5,
-          session_duration: 750,
-          status: 'completed'
-        }
-      ],
-      calibration_data: {
-        is_calibrated: true,
-        last_calibration: '2025-08-30T12:00:00Z',
-        camera_index: 0,
-        roi_coordinates: { x: 100, y: 100, width: 300, height: 200 }
+    const db = getDb();
+    try {
+      const playerQuery = 'SELECT * FROM players WHERE id = $1';
+      const playerResult = await db.query(playerQuery, [playerIdNum]);
+
+      if (playerResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Player not found' });
       }
-    });
+
+      const player = playerResult.rows[0];
+
+      const statsQuery = 'SELECT * FROM player_stats WHERE player_id = $1';
+      const statsResult = await db.query(statsQuery, [playerIdNum]);
+      const stats = statsResult.rows[0] || {
+        total_makes: 0,
+        total_misses: 0,
+        best_streak: 0,
+        make_percentage: 0,
+        total_putts: 0,
+        avg_distance: 0,
+        sessions_played: 0
+      };
+
+      const sessionsQuery = 'SELECT * FROM sessions WHERE player_id = $1 ORDER BY start_time DESC';
+      const sessionsResult = await db.query(sessionsQuery, [playerIdNum]);
+      const sessions = sessionsResult.rows;
+
+      const calibrationQuery = 'SELECT * FROM calibrations WHERE player_id = $1';
+      const calibrationResult = await db.query(calibrationQuery, [playerIdNum]);
+      const calibration_data = calibrationResult.rows[0] || {
+        is_calibrated: false,
+        last_calibration: null,
+        camera_index: null,
+        roi_coordinates: null
+      };
+
+      return res.status(200).json({
+        player_id: player.id,
+        name: player.name,
+        email: player.email,
+        membership_tier: player.membership_tier,
+        early_access_code: player.early_access_code,
+        subscription_status: player.subscription_status,
+        timezone: player.timezone,
+        stats,
+        sessions,
+        calibration_data,
+      });
+    } catch (error) {
+      console.error('Error fetching player data:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
