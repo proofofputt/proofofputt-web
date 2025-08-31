@@ -1,34 +1,20 @@
-# Core Flask dependencies
+# Vercel-compatible API dependencies
 Flask==3.0.0
 flask-cors==4.0.0
-
-# Database dependencies
 SQLAlchemy==2.0.23
 psycopg2-binary==2.9.10
-
-# Authentication and security
 bcrypt==4.1.2
 werkzeug==3.0.1
-
-# WebSocket support
-flask-socketio==5.3.6
-python-socketio==5.10.0
-
-# Date/time handling
 pytz==2023.3
-
-# Development and logging
 python-dotenv==1.0.0
 
-# Computer Vision (for desktop integration)
-opencv-python==4.8.1.78
-numpy==1.24.3
+# Desktop/Local development dependencies (not needed for Vercel)
+# opencv-python==4.8.1.78  # Large package, only needed for local CV processing
+# numpy==1.24.3             # Large package, only needed for local CV processing
 
-# Email support (if needed)
-# sendgrid==6.10.0
-
-# Rate limiting (for API protection)
-flask-limiter==3.5.0
-
-# JWT tokens (for authentication)
-flask-jwt-extended==4.6.0
+# Future features (commented out to avoid deployment issues)
+# flask-socketio==5.3.6     # WebSocket support - enable when needed
+# python-socketio==5.10.0   # WebSocket support - enable when needed
+# flask-limiter==3.5.0      # Rate limiting - enable when needed  
+# flask-jwt-extended==4.6.0 # JWT auth - enable when needed
+# sendgrid==6.10.0          # Email support - enable when needed

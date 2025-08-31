@@ -1,0 +1,13 @@
+# Vercel-optimized requirements - only essential API dependencies
+Flask==3.0.0
+flask-cors==4.0.0
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.10
+bcrypt==4.1.2
+werkzeug==3.0.1
+pytz==2023.3
+python-dotenv==1.0.0
+
+# Optional: Only if WebSocket features are needed
+# flask-socketio==5.3.6
+# python-socketio==5.10.0
