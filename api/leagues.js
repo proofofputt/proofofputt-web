@@ -11,15 +11,53 @@ export default function handler(req, res) {
   const { method } = req;
   
   if (method === 'GET') {
+    const { player_id } = req.query;
+    
+    // Mock data structure that matches what LeaguesPage expects
     return res.status(200).json({
-      leagues: [
-        { id: 1, name: "Masters Champions", member_count: 24, is_member: true }
-      ]
+      my_leagues: [
+        {
+          league_id: 1,
+          name: "Masters Champions",
+          description: "Elite putting league for advanced players",
+          member_count: 24,
+          privacy_type: "private",
+          status: "active",
+          can_join: false
+        }
+      ],
+      public_leagues: [
+        {
+          league_id: 2,
+          name: "Weekend Warriors",
+          description: "Casual league for weekend practice sessions",
+          member_count: 12,
+          privacy_type: "public",
+          status: "active",
+          can_join: true
+        }
+      ],
+      pending_invites: []
     });
   }
   
   if (method === 'POST') {
-    return res.status(200).json({ success: true, league: { id: Date.now() } });
+    const { name, description, privacy_type } = req.body;
+    const newLeagueId = Date.now();
+    
+    // Simulate creating a new league and return it
+    return res.status(200).json({ 
+      success: true, 
+      league: { 
+        league_id: newLeagueId,
+        name: name || "New League",
+        description: description || "A newly created league",
+        member_count: 1,
+        privacy_type: privacy_type || "private",
+        status: "active",
+        can_join: false
+      }
+    });
   }
 
   return res.status(405).json({ error: 'Method not allowed' });

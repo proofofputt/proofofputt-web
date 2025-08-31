@@ -544,3 +544,16 @@
   font-weight: bold;
   color: var(--text-white);
 }
+
+.loading-indicator {
+  display: inline-block;
+  margin-left: 0.5rem;
+  animation: spin 1s linear infinite;
+  color: var(--masters-green-light);
+  font-size: 1.2em;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

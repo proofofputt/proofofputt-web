@@ -27,8 +27,7 @@ export const AuthProvider = ({ children }) => {
           setPlayerData(freshData);
         } catch (error) {
           console.error('Failed to refresh player data on mount:', error);
-          // Optionally, log out if refresh fails, but for now, just log the error
-          // logout(); 
+          // Keep existing playerData if refresh fails, don't corrupt the state
         }
       }
       setIsLoading(false); // Set loading to false after attempt to load/refresh
@@ -79,8 +78,7 @@ export const AuthProvider = ({ children }) => {
       setPlayerData(freshData);
     } catch (error) {
       console.error('Could not refresh user data:', error);
-      // Optional: decide if you want to log out the user if refresh fails
-      // logout();
+      // Keep existing playerData if refresh fails, don't corrupt the state
     }
   };
 

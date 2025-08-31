@@ -39,9 +39,11 @@ const ProfileDropdown = () => {
       </button>
       {isOpen && (
         <div className="dropdown-menu">
-          <NavLink to={`/player/${playerData?.player_id}/stats`} className="dropdown-item" onClick={() => setIsOpen(false)}>
-            My Stats
-          </NavLink>
+          {playerData?.player_id && (
+            <NavLink to={`/player/${playerData.player_id}/stats`} className="dropdown-item" onClick={() => setIsOpen(false)}>
+              My Stats
+            </NavLink>
+          )}
           <NavLink to="/settings" className="dropdown-item" onClick={() => setIsOpen(false)}>
             Settings
           </NavLink>

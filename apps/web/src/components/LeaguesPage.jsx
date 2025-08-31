@@ -57,21 +57,30 @@ const LeaguesPage = () => {
   const [publicLeagues, setPublicLeagues] = useState([]);
   const [pendingInvites, setPendingInvites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const fetchLeagues = useCallback(async () => {
+  const fetchLeagues = useCallback(async (isRefresh = false) => {
     if (!playerData?.player_id) return;
-    setIsLoading(true);
+    
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+    
     try {
       const { my_leagues, public_leagues, pending_invites } = await apiListLeagues(playerData.player_id);
       setMyLeagues(my_leagues || []);
       setPublicLeagues(public_leagues || []);
       setPendingInvites(pending_invites || []);
+      setError(''); // Clear any previous errors
     } catch (err) {
       setError(err.message || 'Failed to load leagues.');
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   }, [playerData]);
 
@@ -83,7 +92,7 @@ const LeaguesPage = () => {
     try {
       await apiJoinLeague(leagueId, playerData.player_id);
       showNotification('Successfully joined league!');
-      fetchLeagues(); // Refresh the lists after joining
+      fetchLeagues(true); // Refresh with loading indicator
     } catch (err) {
       setError(err.message || 'Could not join league.');
     }
@@ -93,7 +102,7 @@ const LeaguesPage = () => {
     try {
       await apiRespondToLeagueInvite(leagueId, playerData.player_id, action);
       showNotification(`Invitation ${action}d successfully.`);
-      fetchLeagues(); // Refresh lists
+      fetchLeagues(true); // Refresh with loading indicator
     } catch (err) {
       showNotification(err.message || `Could not ${action} invite.`, true);
     }
@@ -101,7 +110,7 @@ const LeaguesPage = () => {
 
   const handleLeagueCreated = () => {
     setShowCreateModal(false);
-    fetchLeagues();
+    fetchLeagues(true); // Refresh with loading indicator
     showNotification('League created successfully!');
   };
 
@@ -119,7 +128,7 @@ const LeaguesPage = () => {
   return (
     <div className="leagues-page">
       <div className="leagues-header">
-        <h1>Leagues</h1>
+        <h1>Leagues {isRefreshing && <span className="loading-indicator">↻</span>}</h1>
         <button onClick={handleCreateLeagueClick} className="create-league-btn">+ Create League</button>
       </div>
 
